@@ -16,16 +16,48 @@ public class MeasurementsController : ControllerBase
         _db = db;
     }
 
-    // GET /api/measurements
+    // GET /api/measurements?fromUtc=...&toUtc=...&unit=...
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Measurement>>> GetAll()
+    public async Task<ActionResult<IEnumerable<Measurement>>> GetAll(
+        [FromQuery] DateTime? fromUtc,
+        [FromQuery] DateTime? toUtc,
+        [FromQuery] string? unit)
     {
-        var items = await _db.Measurements
-            .AsNoTracking()
+        var query = _db.Measurements.AsNoTracking().AsQueryable();
+
+        if (fromUtc.HasValue)
+            query = query.Where(m => m.TimestampUtc >= fromUtc.Value);
+
+        if (toUtc.HasValue)
+            query = query.Where(m => m.TimestampUtc <= toUtc.Value);
+
+        if (!string.IsNullOrWhiteSpace(unit))
+            query = query.Where(m => m.Unit == unit);
+
+        var items = await query
             .OrderBy(m => m.TimestampUtc)
             .ToListAsync();
 
         return Ok(items);
+    }
+
+    // GET /api/measurements/latest
+    [HttpGet("latest")]
+    public async Task<ActionResult<Measurement>> GetLatest([FromQuery] string? unit)
+    {
+        var query = _db.Measurements.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(unit))
+            query = query.Where(m => m.Unit == unit);
+
+        var latest = await query
+            .OrderByDescending(m => m.TimestampUtc)
+            .FirstOrDefaultAsync();
+
+        if (latest == null)
+            return NotFound();
+
+        return Ok(latest);
     }
 
     // GET /api/measurements/{id}
@@ -43,15 +75,12 @@ public class MeasurementsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Measurement>> Create([FromBody] Measurement input)
     {
-        // Auto-Id erstellen
         if (input.Id == Guid.Empty)
             input.Id = Guid.NewGuid();
 
-        // Timestamp setzen falls nicht angegeben
         if (input.TimestampUtc == default)
             input.TimestampUtc = DateTime.UtcNow;
 
-        // Unit defaulten falls leer
         if (string.IsNullOrWhiteSpace(input.Unit))
             input.Unit = "UNKNOWN";
 
@@ -59,5 +88,46 @@ public class MeasurementsController : ControllerBase
         await _db.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetById), new { id = input.Id }, input);
+    }
+
+    // PUT /api/measurements/{id}
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<Measurement>> Update(Guid id, [FromBody] Measurement input)
+    {
+        if (id == Guid.Empty)
+            return BadRequest("Id must not be empty.");
+
+        var existing = await _db.Measurements.FindAsync(id);
+        if (existing == null)
+            return NotFound();
+
+        existing.Value = input.Value;
+
+        if (input.TimestampUtc != default)
+            existing.TimestampUtc = input.TimestampUtc;
+
+        if (!string.IsNullOrWhiteSpace(input.Unit))
+            existing.Unit = input.Unit;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(existing);
+    }
+
+    // DELETE /api/measurements/{id}
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        if (id == Guid.Empty)
+            return BadRequest("Id must not be empty.");
+
+        var existing = await _db.Measurements.FindAsync(id);
+        if (existing == null)
+            return NotFound();
+
+        _db.Measurements.Remove(existing);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
     }
 }
