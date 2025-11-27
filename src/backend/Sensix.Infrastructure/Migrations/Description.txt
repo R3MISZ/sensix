@@ -1,0 +1,7 @@
+﻿1. Add-Migration InitialCreate
+
+if not found
+
+Nuget Packages install --> Microsoft.EntityFrameworkCore.Tools
+
+2. Update-Database
