@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Sensix.Infrastructure;          // for SensixDbContext
 using Sensix.Infrastructure.Entities; // for Measurement
+using Sensix.Api.Dtos;
 
 namespace Sensix.Api.Controllers;
 
@@ -16,9 +18,11 @@ public class MeasurementsController : ControllerBase
         _db = db;
     }
 
+    private static MeasurementDto ToDto(Measurement m) => new MeasurementDto(m.Id, m.Value, m.TimestampUtc, m.Unit);
+
     // GET /api/measurements?fromUtc=...&toUtc=...&unit=...
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Measurement>>> GetAll(
+    public async Task<ActionResult<IEnumerable<MeasurementDto>>> GetAll(
         [FromQuery] DateTime? fromUtc,
         [FromQuery] DateTime? toUtc,
         [FromQuery] string? unit)
@@ -43,7 +47,7 @@ public class MeasurementsController : ControllerBase
 
     // GET /api/measurements/latest
     [HttpGet("latest")]
-    public async Task<ActionResult<Measurement>> GetLatest([FromQuery] string? unit)
+    public async Task<ActionResult<MeasurementDto>> GetLatest([FromQuery] string? unit)
     {
         var query = _db.Measurements.AsNoTracking();
 
@@ -57,12 +61,12 @@ public class MeasurementsController : ControllerBase
         if (latest == null)
             return NotFound();
 
-        return Ok(latest);
+        return Ok(ToDto(latest));
     }
 
     // GET /api/measurements/{id}
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Measurement>> GetById(Guid id)
+    public async Task<ActionResult<MeasurementDto>> GetById(Guid id)
     {
         var m = await _db.Measurements.FindAsync(id);
         if (m == null)
@@ -73,26 +77,25 @@ public class MeasurementsController : ControllerBase
 
     // POST /api/measurements
     [HttpPost]
-    public async Task<ActionResult<Measurement>> Create([FromBody] Measurement input)
+    public async Task<ActionResult<MeasurementDto>> Create([FromBody] CreateMeasurementDto input)
     {
-        if (input.Id == Guid.Empty)
-            input.Id = Guid.NewGuid();
+        var entity = new Measurement
+        {
+            Id = Guid.NewGuid(),
+            Value = input.Value,
+            TimestampUtc = input.TimestampUtc ?? DateTime.UtcNow,
+            Unit = string.IsNullOrWhiteSpace(input.Unit) ? "UNKNOWN" : input.Unit
+        };
 
-        if (input.TimestampUtc == default)
-            input.TimestampUtc = DateTime.UtcNow;
-
-        if (string.IsNullOrWhiteSpace(input.Unit))
-            input.Unit = "UNKNOWN";
-
-        _db.Measurements.Add(input);
+        _db.Measurements.Add(entity);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { id = input.Id }, input);
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, ToDto(entity));
     }
 
     // PUT /api/measurements/{id}
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<Measurement>> Update(Guid id, [FromBody] Measurement input)
+    public async Task<ActionResult<MeasurementDto>> Update(Guid id, [FromBody] UpdateMeasurementDto dto)
     {
         if (id == Guid.Empty)
             return BadRequest("Id must not be empty.");
@@ -101,18 +104,20 @@ public class MeasurementsController : ControllerBase
         if (existing == null)
             return NotFound();
 
-        existing.Value = input.Value;
+        if (dto.Value.HasValue)
+            existing.Value = dto.Value.Value;
 
-        if (input.TimestampUtc != default)
-            existing.TimestampUtc = input.TimestampUtc;
+        if (dto.TimestampUtc.HasValue)
+            existing.TimestampUtc = dto.TimestampUtc.Value;
 
-        if (!string.IsNullOrWhiteSpace(input.Unit))
-            existing.Unit = input.Unit;
+        if (!string.IsNullOrWhiteSpace(dto.Unit))
+            existing.Unit = dto.Unit;
 
         await _db.SaveChangesAsync();
 
-        return Ok(existing);
+        return Ok(ToDto(existing));
     }
+
 
     // DELETE /api/measurements/{id}
     [HttpDelete("{id:guid}")]
