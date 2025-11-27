@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Sensix.Api.Dtos;
 using Sensix.Infrastructure;          // for SensixDbContext
 using Sensix.Infrastructure.Entities; // for Measurement
-using Sensix.Api.Dtos;
 
 namespace Sensix.Api.Controllers;
 
@@ -12,13 +12,13 @@ namespace Sensix.Api.Controllers;
 public class MeasurementsController : ControllerBase
 {
     private readonly SensixDbContext _db;
+    private readonly IMapper _mapper;
 
-    public MeasurementsController(SensixDbContext db)
+    public MeasurementsController(SensixDbContext db, IMapper mapper)
     {
         _db = db;
+        _mapper = mapper;
     }
-
-    private static MeasurementDto ToDto(Measurement m) => new MeasurementDto(m.Id, m.Value, m.TimestampUtc, m.Unit);
 
     // GET /api/measurements?fromUtc=...&toUtc=...&unit=...
     [HttpGet]
@@ -42,10 +42,11 @@ public class MeasurementsController : ControllerBase
             .OrderBy(m => m.TimestampUtc)
             .ToListAsync();
 
-        return Ok(items);
+        var result = _mapper.Map<IEnumerable<MeasurementDto>>(items);
+        return Ok(result);
     }
 
-    // GET /api/measurements/latest
+    // GET /api/measurements/latest?unit=...
     [HttpGet("latest")]
     public async Task<ActionResult<MeasurementDto>> GetLatest([FromQuery] string? unit)
     {
@@ -61,7 +62,7 @@ public class MeasurementsController : ControllerBase
         if (latest == null)
             return NotFound();
 
-        return Ok(ToDto(latest));
+        return Ok(_mapper.Map<MeasurementDto>(latest));
     }
 
     // GET /api/measurements/{id}
@@ -72,30 +73,31 @@ public class MeasurementsController : ControllerBase
         if (m == null)
             return NotFound();
 
-        return Ok(m);
+        return Ok(_mapper.Map<MeasurementDto>(m));
     }
 
     // POST /api/measurements
     [HttpPost]
-    public async Task<ActionResult<MeasurementDto>> Create([FromBody] CreateMeasurementDto input)
+    public async Task<ActionResult<MeasurementDto>> Create([FromBody] CreateMeasurementDto dto)
     {
-        var entity = new Measurement
-        {
-            Id = Guid.NewGuid(),
-            Value = input.Value,
-            TimestampUtc = input.TimestampUtc ?? DateTime.UtcNow,
-            Unit = string.IsNullOrWhiteSpace(input.Unit) ? "UNKNOWN" : input.Unit
-        };
+        // [ApiController] kümmert sich um Model Validation (Required, Range, etc.)
+
+        var entity = _mapper.Map<Measurement>(dto);
+        entity.Id = Guid.NewGuid();
 
         _db.Measurements.Add(entity);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, ToDto(entity));
+        var result = _mapper.Map<MeasurementDto>(entity);
+
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, result);
     }
 
     // PUT /api/measurements/{id}
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<MeasurementDto>> Update(Guid id, [FromBody] UpdateMeasurementDto dto)
+    public async Task<ActionResult<MeasurementDto>> Update(
+        Guid id,
+        [FromBody] UpdateMeasurementDto dto)
     {
         if (id == Guid.Empty)
             return BadRequest("Id must not be empty.");
@@ -104,20 +106,14 @@ public class MeasurementsController : ControllerBase
         if (existing == null)
             return NotFound();
 
-        if (dto.Value.HasValue)
-            existing.Value = dto.Value.Value;
-
-        if (dto.TimestampUtc.HasValue)
-            existing.TimestampUtc = dto.TimestampUtc.Value;
-
-        if (!string.IsNullOrWhiteSpace(dto.Unit))
-            existing.Unit = dto.Unit;
+        // Nur nicht-null Felder aus dto werden gemappt (per AutoMapper-Config)
+        _mapper.Map(dto, existing);
 
         await _db.SaveChangesAsync();
 
-        return Ok(ToDto(existing));
+        var result = _mapper.Map<MeasurementDto>(existing);
+        return Ok(result);
     }
-
 
     // DELETE /api/measurements/{id}
     [HttpDelete("{id:guid}")]

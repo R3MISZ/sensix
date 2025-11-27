@@ -1,3 +1,4 @@
+using Sensix.Api.Mapping;
 using Sensix.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,9 @@ builder.Services.AddSwaggerGen();
 
 // DbContext
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 var app = builder.Build();
 
