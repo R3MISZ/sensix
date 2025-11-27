@@ -20,33 +20,52 @@ public class MeasurementsController : ControllerBase
         _mapper = mapper;
     }
 
-    // GET /api/measurements?fromUtc=...&toUtc=...&unit=...
+    // GET /api/measurements
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MeasurementDto>>> GetAll(
-        [FromQuery] DateTime? fromUtc,
-        [FromQuery] DateTime? toUtc,
-        [FromQuery] string? unit)
+    public async Task<ActionResult<PagedResult<MeasurementDto>>> GetAll([FromQuery] MeasurementFilterDto filter)
     {
         var query = _db.Measurements.AsNoTracking().AsQueryable();
 
-        if (fromUtc.HasValue)
-            query = query.Where(m => m.TimestampUtc >= fromUtc.Value);
+        // Filters
+        if (filter.FromUtc.HasValue)
+            query = query.Where(m => m.TimestampUtc >= filter.FromUtc.Value);
 
-        if (toUtc.HasValue)
-            query = query.Where(m => m.TimestampUtc <= toUtc.Value);
+        if (filter.ToUtc.HasValue)
+            query = query.Where(m => m.TimestampUtc <= filter.ToUtc.Value);
 
-        if (!string.IsNullOrWhiteSpace(unit))
-            query = query.Where(m => m.Unit == unit);
+        if (!string.IsNullOrWhiteSpace(filter.Unit))
+            query = query.Where(m => m.Unit == filter.Unit);
+
+        // Count before paging
+        var totalCount = await query.CountAsync();
+
+        // Apply sorting
+        query = query.OrderBy(m => m.TimestampUtc);
+
+        // Paging
+        var skip = (filter.Page - 1) * filter.PageSize;
 
         var items = await query
-            .OrderBy(m => m.TimestampUtc)
+            .Skip(skip)
+            .Take(filter.PageSize)
             .ToListAsync();
 
-        var result = _mapper.Map<IEnumerable<MeasurementDto>>(items);
+        var mapped = _mapper.Map<IEnumerable<MeasurementDto>>(items);
+
+        // Build response
+        var result = new PagedResult<MeasurementDto>
+        {
+            Data = mapped,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize)
+        };
+
         return Ok(result);
     }
 
-    // GET /api/measurements/latest?unit=...
+    // GET /api/measurements/latest
     [HttpGet("latest")]
     public async Task<ActionResult<MeasurementDto>> GetLatest([FromQuery] string? unit)
     {

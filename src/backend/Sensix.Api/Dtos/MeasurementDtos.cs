@@ -9,7 +9,6 @@ public record MeasurementDto(
     DateTime TimestampUtc,
     string Unit);
 
-// For POST /api/measurements
 public class CreateMeasurementDto
 {
     [Required]
@@ -23,7 +22,6 @@ public class CreateMeasurementDto
     public string Unit { get; set; } = string.Empty;
 }
 
-// For PUT /api/measurements/{id}
 public class UpdateMeasurementDto
 {
     [Range(-1_000_000, 1_000_000)]
@@ -32,5 +30,13 @@ public class UpdateMeasurementDto
     public DateTime? TimestampUtc { get; set; }
 
     [StringLength(16, MinimumLength = 1)]
+    public string? Unit { get; set; }
+}
+
+public class MeasurementFilterDto : PagingQuery
+{
+    public DateTime? FromUtc { get; set; }
+    public DateTime? ToUtc { get; set; }
+
     public string? Unit { get; set; }
 }
