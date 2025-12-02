@@ -1,7 +1,13 @@
-﻿1. Add-Migration InitialCreate
+﻿[Create Migration to execute]
+In Package Manager Console
 
-if not found
+to create migration --> command PM>: Add-Migration InitialCreate
 
-Nuget Packages install --> Microsoft.EntityFrameworkCore.Tools
+to remove if exists --> command PM>: Remove-Migration
 
-2. Update-Database
+if not found --> Nuget Packages install --> Microsoft.EntityFrameworkCore.Tools
+
+[Update database]
+In Package Manager Console
+
+to set database by migration --> command PM>: Update Database
