@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Sensix.Api.Dtos;
+
+using Sensix.Api.Dtos.Measurements;
+using Sensix.Api.Dtos.Common;
+
 using Sensix.Infrastructure;          // for SensixDbContext
 using Sensix.Infrastructure.Entities; // for Measurement
 
@@ -22,19 +25,24 @@ public class MeasurementsController : ControllerBase
 
     // GET /api/measurements
     [HttpGet]
-    public async Task<ActionResult<PagedResult<MeasurementDto>>> GetAll([FromQuery] MeasurementFilterDto filter)
+    public async Task<ActionResult<PagedResult<MeasurementDto>>> GetAll([FromQuery] FilterMeasurementDto filter)
     {
-        var query = _db.Measurements.AsNoTracking().AsQueryable();
+        var query = _db.Measurements
+            .AsNoTracking()
+            .Include(m => m.Sensor)
+                .ThenInclude(s => s.Device)
+            .AsQueryable();
 
         // Filters
+        if (filter.DeviceId.HasValue)
+            query = query.Where(m => m.Sensor.DeviceId == filter.DeviceId.Value);
+
+        if (filter.SensorId.HasValue)
+            query = query.Where(m => m.SensorId == filter.SensorId.Value);
+
         if (filter.FromUtc.HasValue)
             query = query.Where(m => m.TimestampUtc >= filter.FromUtc.Value);
 
-        if (filter.ToUtc.HasValue)
-            query = query.Where(m => m.TimestampUtc <= filter.ToUtc.Value);
-
-        if (!string.IsNullOrWhiteSpace(filter.Unit))
-            query = query.Where(m => m.Unit == filter.Unit);
 
         // Count before paging
         var totalCount = await query.CountAsync();
@@ -99,7 +107,10 @@ public class MeasurementsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<MeasurementDto>> Create([FromBody] CreateMeasurementDto dto)
     {
-        // [ApiController] kümmert sich um Model Validation (Required, Range, etc.)
+        // Existiert der Sensor überhaupt?
+        var sensorExists = await _db.Sensors.AnyAsync(s => s.Id == dto.SensorId);
+        //if (!sensorExists)
+        //    return BadRequest($"Sensor with id {dto.SensorId} does not exist.");
 
         var entity = _mapper.Map<Measurement>(dto);
         entity.Id = Guid.NewGuid();
