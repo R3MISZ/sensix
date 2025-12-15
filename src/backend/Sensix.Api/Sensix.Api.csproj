@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sensix.Infrastructure\Sensix.Infrastructure.csproj" />
+    <ProjectReference Include="..\Sensix.Lib\Sensix.Lib.csproj" />
   </ItemGroup>
 
 </Project>

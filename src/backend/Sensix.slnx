@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Sensix.Api/Sensix.Api.csproj" Id="54316071-3574-4b05-955d-b10d195e8b60" />
-  <Project Path="Sensix.Infrastructure/Sensix.Infrastructure.csproj" Id="7561ff8e-b2b5-4cfe-8b97-ee354c9cd8bc" />
+  <Project Path="Sensix.Lib/Sensix.Lib.csproj" Id="dc202506-489e-44cd-acaf-a0e29fb4df4e" />
+  <Project Path="Sensix.UnitTests/Sensix.UnitTests.csproj" Id="fcff8a25-cd3b-49e3-a679-d2f807e926de" />
 </Solution>

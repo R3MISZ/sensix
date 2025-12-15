@@ -1,4 +1,4 @@
-﻿namespace Sensix.Infrastructure.Entities;
+﻿namespace Sensix.Lib.Entities;
 
 public class Sensor
 {

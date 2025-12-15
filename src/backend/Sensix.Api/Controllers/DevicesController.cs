@@ -2,11 +2,8 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using Sensix.Api.Dtos.Devices;
-using Sensix.Api.Dtos.Common;
-
-using Sensix.Infrastructure;
+using Sensix.Lib.Dtos;
+using Sensix.Lib.Service;
 
 namespace Sensix.Api.Controllers;
 
@@ -14,103 +11,42 @@ namespace Sensix.Api.Controllers;
 [Route("api/[controller]")]
 public class DevicesController : ControllerBase
 {
-    private readonly SensixDbContext _db;
-    private readonly IMapper _mapper;
+    private readonly IDeviceService _deviceService;
 
-    public DevicesController(SensixDbContext db, IMapper mapper)
+    public DevicesController(IDeviceService deviceService)
     {
-        _db = db;
-        _mapper = mapper;
+        _deviceService = deviceService;
     }
 
-    // GET: /api/devices
-    [HttpGet]
-    public async Task<ActionResult<PagedResult<DeviceDto>>> GetAll(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
-    {
-        if (page <= 0) page = 1;
-        if (pageSize <= 0 || pageSize > 500) pageSize = 50;
-
-        var query = _db.Devices
-            .Include(d => d.Sensors)
-            .AsNoTracking();
-
-        var totalCount = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        var items = await query
-            .OrderBy(d => d.Name)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ProjectTo<DeviceDto>(_mapper.ConfigurationProvider)
-            .ToListAsync();
-
-        return Ok(new PagedResult<DeviceDto>
-        {
-            Data = items,
-            Page = page,
-            PageSize = pageSize,
-            TotalCount = totalCount,
-            TotalPages = totalPages
-        });
-    }
-
-    // GET: /api/devices/{id}
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<DeviceDto>> GetById(Guid id)
-    {
-        var device = await _db.Devices
-            .Include(d => d.Sensors)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.Id == id);
-
-        if (device == null)
-            return NotFound();
-
-        return Ok(_mapper.Map<DeviceDto>(device));
-    }
-
-    // POST: /api/devices
     [HttpPost]
-    public async Task<ActionResult<DeviceDto>> Create([FromBody] CreateDeviceDto dto)
+    public async Task<ActionResult<DeviceResponse>> Create([FromBody] CreateDeviceRequest request)
     {
-        var entity = _mapper.Map<Infrastructure.Entities.Device>(dto);
-        entity.Id = Guid.NewGuid();
-        entity.CreatedAtUtc = DateTime.UtcNow;
-
-        _db.Devices.Add(entity);
-        await _db.SaveChangesAsync();
-
-        var result = _mapper.Map<DeviceDto>(entity);
-        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, result);
+        var result = await _deviceService.CreateDeviceAsync(request);
+        return Ok(result);
     }
 
-    // PUT: /api/devices/{id}
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<DeviceDto>> Update(Guid id, [FromBody] UpdateDeviceDto dto)
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<DeviceResponse>>> GetAll()
     {
-        var existing = await _db.Devices.FindAsync(id);
-        if (existing == null)
+        var result = await _deviceService.ReadDevicesAsync();
+        return Ok(result);
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<DeviceResponse>> Update([FromBody] UpdateDeviceRequest request)
+    {
+        var result = await _deviceService.UpdateDeviceAsync(request);
+        if (result is null)
             return NotFound();
-
-        _mapper.Map(dto, existing);
-        await _db.SaveChangesAsync();
-
-        return Ok(_mapper.Map<DeviceDto>(existing));
+        return Ok(result);
     }
 
-    // DELETE: /api/devices/{id}
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<ActionResult> Delete([FromRoute] Guid id)
     {
-        var existing = await _db.Devices.FindAsync(id);
-        if (existing == null)
+        var success = await _deviceService.DeleteDeviceAsync(id);
+        if (success is false)
             return NotFound();
-
-        _db.Devices.Remove(existing);
-        await _db.SaveChangesAsync();
-
         return NoContent();
     }
 }
