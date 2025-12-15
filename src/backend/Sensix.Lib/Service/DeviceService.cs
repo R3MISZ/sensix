@@ -9,7 +9,7 @@ public interface IDeviceService
 {
     Task<DeviceResponse> CreateDeviceAsync(CreateDeviceRequest request);
     Task<IReadOnlyList<DeviceResponse>> ReadDevicesAsync();
-    Task<DeviceResponse?> UpdateDeviceAsync(UpdateDeviceRequest request);
+    Task<DeviceResponse?> UpdateDeviceAsync(Guid id, UpdateDeviceRequest request);
     Task<bool> DeleteDeviceAsync(Guid id);
 }
 
@@ -41,9 +41,9 @@ public class DeviceService : IDeviceService
         return DeviceMapping.ToResponseList(devices);
     }
 
-    public async Task<DeviceResponse?> UpdateDeviceAsync(UpdateDeviceRequest request)
+    public async Task<DeviceResponse?> UpdateDeviceAsync(Guid id, UpdateDeviceRequest request)
     {
-        var device = await _deviceRepository.GetByIdAsync(request.Id);
+        var device = await _deviceRepository.GetByIdAsync(id);
         if (device is null)
             return null;
 

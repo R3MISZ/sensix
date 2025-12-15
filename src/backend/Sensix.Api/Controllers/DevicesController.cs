@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Sensix.Lib.Dtos;
 using Sensix.Lib.Service;
 
@@ -32,8 +29,8 @@ public class DevicesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut]
-    public async Task<ActionResult<DeviceResponse>> Update([FromBody] UpdateDeviceRequest request)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<DeviceResponse>> Update(Guid id, [FromBody] UpdateDeviceRequest request)
     {
         var result = await _deviceService.UpdateDeviceAsync(request);
         if (result is null)
