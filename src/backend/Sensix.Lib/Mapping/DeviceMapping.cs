@@ -1,10 +1,5 @@
-﻿using Sensix.Lib.Entities;
-using Sensix.Lib.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Sensix.Lib.Dtos;
+using Sensix.Lib.Entities;
 
 namespace Sensix.Lib.Mapping;
 

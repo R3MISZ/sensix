@@ -3,24 +3,19 @@
 public class Device
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
-    public string Name { get; private set; } = string.Empty;
+    public string? Name { get; private set; }
     public string? Location { get; private set; }
-    public bool IsActive { get; private set; } = true;
+    public bool IsActive { get; private set; } = false;
 
-    public Device()
-    {
-    }
 
-    public void SetName(string name)
+    public void SetName(string? name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name required");
-        Name = name.Trim();
+        Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
     }
 
     public void SetLocation(string? location)
     {
-        Location = location?.Trim();
+        Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
     }
 
     public void Activate() => IsActive = true;

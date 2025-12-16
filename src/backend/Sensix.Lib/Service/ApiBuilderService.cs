@@ -10,9 +10,11 @@ public static class ApiBuilderService
 {
     public static IServiceCollection AddLibServices(this IServiceCollection services)
     {
-        // Controller
-        services.AddScoped<IDeviceRepository, DeviceRepository>();
+        // Interface to class
         services.AddScoped<IDeviceService, DeviceService>();
+
+        services.AddScoped<IDbRepository, DbRepository>();
+        services.AddScoped<IDeviceRepository, DeviceRepository>();
 
         return services;
     }

@@ -18,21 +18,30 @@ public class DevicesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<DeviceResponse>> Create([FromBody] CreateDeviceRequest request)
     {
-        var result = await _deviceService.CreateDeviceAsync(request);
+        var result = await _deviceService.CreateAsync(request);
         return Ok(result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<DeviceResponse>>> GetAll()
+    public async Task<ActionResult<IReadOnlyList<DeviceResponse>>> ReadAll()
     {
-        var result = await _deviceService.ReadDevicesAsync();
+        var result = await _deviceService.GetAllAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<DeviceResponse>> ReadById([FromRoute] Guid id)
+    {
+        var result = await _deviceService.GetByIdAsync(id);
+        if (result is null)
+            return NotFound();
         return Ok(result);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<DeviceResponse>> Update(Guid id, [FromBody] UpdateDeviceRequest request)
     {
-        var result = await _deviceService.UpdateDeviceAsync(request);
+        var result = await _deviceService.UpdateAsync(id, request);
         if (result is null)
             return NotFound();
         return Ok(result);
@@ -41,7 +50,7 @@ public class DevicesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete([FromRoute] Guid id)
     {
-        var success = await _deviceService.DeleteDeviceAsync(id);
+        var success = await _deviceService.DeleteAsync(id);
         if (success is false)
             return NotFound();
         return NoContent();

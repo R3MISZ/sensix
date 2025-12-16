@@ -14,8 +14,8 @@ public interface IDeviceRepository
     Task AddAsync(Device device);
     Task<IReadOnlyList<Device>> GetAllAsync();
     Task<Device?> GetByIdAsync(Guid id);
+    Task<Device?> GetByIdNoTrackingAsync(Guid id);
     Task RemoveAsync(Device device);
-    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
 public class DeviceRepository : IDeviceRepository
@@ -36,14 +36,21 @@ public class DeviceRepository : IDeviceRepository
     {
         return await _dbContext.Devices
             .AsNoTracking()
-            .OrderBy(d => d.Name)
+            .OrderBy(device => device.Name)
             .ToListAsync();
     }
 
     public async Task<Device?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Devices
-            .FirstOrDefaultAsync(d => d.Id == id);
+            .FirstOrDefaultAsync(device => device.Id == id);
+    }
+
+    public async Task<Device?> GetByIdNoTrackingAsync(Guid id)
+    {
+        return await _dbContext.Devices
+            .AsNoTracking()
+            .FirstOrDefaultAsync(device => device.Id == id);
     }
 
     public Task RemoveAsync(Device device)
@@ -51,7 +58,4 @@ public class DeviceRepository : IDeviceRepository
         _dbContext.Devices.Remove(device);
         return Task.CompletedTask;
     }
-
-    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
-        => _dbContext.SaveChangesAsync(cancellationToken);
 }

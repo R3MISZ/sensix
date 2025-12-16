@@ -7,67 +7,86 @@ namespace Sensix.Lib.Service;
 
 public interface IDeviceService
 {
-    Task<DeviceResponse> CreateDeviceAsync(CreateDeviceRequest request);
-    Task<IReadOnlyList<DeviceResponse>> ReadDevicesAsync();
-    Task<DeviceResponse?> UpdateDeviceAsync(Guid id, UpdateDeviceRequest request);
-    Task<bool> DeleteDeviceAsync(Guid id);
+    Task<DeviceResponse> CreateAsync(CreateDeviceRequest request);
+    Task<IReadOnlyList<DeviceResponse>> GetAllAsync();
+    Task<DeviceResponse?> GetByIdAsync(Guid id);
+    Task<DeviceResponse?> UpdateAsync(Guid id, UpdateDeviceRequest request);
+    Task<bool> DeleteAsync(Guid id);
 }
 
 public class DeviceService : IDeviceService
 {
+    private readonly IDbRepository _dbRepository;
     private readonly IDeviceRepository _deviceRepository;
 
-    public DeviceService(IDeviceRepository deviceRepository)
+    public DeviceService(IDbRepository dbRepository, IDeviceRepository deviceRepository)
     {
+        _dbRepository = dbRepository;
         _deviceRepository = deviceRepository;
     }
 
-    public async Task<DeviceResponse> CreateDeviceAsync(CreateDeviceRequest request)
+    public async Task<DeviceResponse> CreateAsync(CreateDeviceRequest request)
     {
         var device = new Device();
+
         device.SetName(request.Name);
         device.SetLocation(request.Location);
 
+        if (request.IsActive is true) device.Activate();
+        else if (request.IsActive is false) device.Deactivate();
+
         await _deviceRepository.AddAsync(device);
-        await _deviceRepository.SaveChangesAsync();
+        await _dbRepository.SaveChangesAsync();
 
         return DeviceMapping.ToResponse(device);
     }
 
-    public async Task<IReadOnlyList<DeviceResponse>> ReadDevicesAsync()
+    public async Task<IReadOnlyList<DeviceResponse>> GetAllAsync()
     {
         var devices = await _deviceRepository.GetAllAsync();
 
         return DeviceMapping.ToResponseList(devices);
     }
 
-    public async Task<DeviceResponse?> UpdateDeviceAsync(Guid id, UpdateDeviceRequest request)
+    public async Task<DeviceResponse?> GetByIdAsync(Guid id)
     {
-        var device = await _deviceRepository.GetByIdAsync(id);
-        if (device is null)
-            return null;
-
-        device.SetName(request.Name);
-        device.SetLocation(request.Location);
-
-        if (request.IsActive)
-            device.Activate();
-        else
-            device.Deactivate();
-
-        await _deviceRepository.SaveChangesAsync();
+        var device = await _deviceRepository.GetByIdNoTrackingAsync(id);
+        if (device is null) return null;
 
         return DeviceMapping.ToResponse(device);
     }
 
-    public async Task<bool> DeleteDeviceAsync(Guid id)
+    public async Task<DeviceResponse?> UpdateAsync(Guid id, UpdateDeviceRequest request)
+    {
+        if (request.Name is null && request.Location is null && request.IsActive is null)
+        {
+            throw new ArgumentException("No fields provided for update");
+        }
+
+        var device = await _deviceRepository.GetByIdAsync(id);
+        if (device is null) return null;
+
+        if (request.Name is not null)
+            device.SetName(request.Name);
+
+        if (request.Location is not null)
+            device.SetLocation(request.Location);
+
+        if (request.IsActive is true) device.Activate();
+        else if (request.IsActive is false) device.Deactivate();
+
+        await _dbRepository.SaveChangesAsync();
+        return DeviceMapping.ToResponse(device);
+    }
+
+    public async Task<bool> DeleteAsync(Guid id)
     {
         var device = await _deviceRepository.GetByIdAsync(id);
         if (device is null)
             return false;
 
         await _deviceRepository.RemoveAsync(device);
-        await _deviceRepository.SaveChangesAsync();
+        await _dbRepository.SaveChangesAsync();
 
         return true;
     }
