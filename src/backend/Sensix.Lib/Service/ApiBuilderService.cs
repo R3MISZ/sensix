@@ -13,10 +13,13 @@ public static class ApiBuilderService
         // Interface to class
         services.AddScoped<IDeviceService, DeviceService>();
         services.AddScoped<ISensorService, SensorService>();
+        services.AddScoped<IMeasurementService, MeasurementService>();
 
         services.AddScoped<IDbRepository, DbRepository>();
+
         services.AddScoped<ISensorRepository, SensorRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
+        services.AddScoped<IMeasurementRepository, MeasurementRepository>();
 
         return services;
     }

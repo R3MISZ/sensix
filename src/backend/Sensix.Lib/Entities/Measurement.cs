@@ -2,11 +2,14 @@
 
 public class Measurement
 {
-    public Guid Id { get; set; }
-    public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
-    public double Value { get; set; }
-    public string Unit { get; set; } = string.Empty;
+    // PK
+    public Guid Id { get; private set; } = Guid.NewGuid();
 
-    public Guid SensorId { get; set; } // foreign key -> Sensor
+    // FK
+    public Guid SensorId { get; set; } // FK
     public Sensor Sensor { get; set; } = null!;
+
+    // Properties
+    public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
+    public double Value { get; set; } = 0.0;
 }

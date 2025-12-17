@@ -11,6 +11,8 @@ public class SensixDbContext : DbContext
 
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<Sensor> Sensors => Set<Sensor>();
+    public DbSet<Measurement> Measurements => Set<Measurement>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,6 +72,19 @@ public class SensixDbContext : DbContext
             builder.Property(sensor => sensor.IsActive)
                 .IsRequired();
         });
+
+        modelBuilder.Entity<Measurement>(builder =>
+        {
+            builder.ToTable("Measurements");
+
+            // PK
+            builder.HasKey(m => m.Id);
+
+            // Properties
+            builder.Property(measurement => measurement.TimestampUtc)
+                .IsRequired();
+
+            builder.Property(m => m.Value)
                 .IsRequired();
         });
 
