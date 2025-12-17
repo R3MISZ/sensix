@@ -58,11 +58,6 @@ public class DeviceService : IDeviceService
 
     public async Task<DeviceResponse?> UpdateAsync(Guid id, UpdateDeviceRequest request)
     {
-        if (request.Name is null && request.Location is null && request.IsActive is null)
-        {
-            throw new ArgumentException("No fields provided for update");
-        }
-
         var device = await _deviceRepository.GetByIdAsync(id);
         if (device is null) return null;
 

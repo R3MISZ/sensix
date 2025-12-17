@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Sensix.Lib.Database;
 using Sensix.Lib.Entities;
 
@@ -22,10 +17,7 @@ public class DeviceRepository : IDeviceRepository
 {
     private readonly SensixDbContext _dbContext;
 
-    public DeviceRepository(SensixDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public DeviceRepository(SensixDbContext dbContext) => _dbContext = dbContext;
 
     public async Task AddAsync(Device device)
     {
@@ -36,6 +28,7 @@ public class DeviceRepository : IDeviceRepository
     {
         return await _dbContext.Devices
             .AsNoTracking()
+            .Include(device => device.Sensors)
             .OrderBy(device => device.Name)
             .ToListAsync();
     }
@@ -43,6 +36,7 @@ public class DeviceRepository : IDeviceRepository
     public async Task<Device?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Devices
+            .Include(device => device.Sensors)
             .FirstOrDefaultAsync(device => device.Id == id);
     }
 
@@ -50,6 +44,7 @@ public class DeviceRepository : IDeviceRepository
     {
         return await _dbContext.Devices
             .AsNoTracking()
+            .Include(device => device.Sensors)
             .FirstOrDefaultAsync(device => device.Id == id);
     }
 

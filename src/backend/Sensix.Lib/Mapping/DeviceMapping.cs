@@ -23,4 +23,3 @@ public static class DeviceMapping
             .ToList();
     }
 }
-
