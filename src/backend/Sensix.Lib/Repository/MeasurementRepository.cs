@@ -17,6 +17,13 @@ public interface IMeasurementRepository
     Task<Measurement?> GetByIdAsync(Guid id);
     Task<Measurement?> GetByIdNoTrackingAsync(Guid id);
     Task RemoveAsync(Measurement measurement);
+
+    Task<List<Measurement>> GetBySensorIdAsync(
+        Guid sensorId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int limit,
+        bool desc);
 }
 
 public class MeasurementRepository : IMeasurementRepository
@@ -25,6 +32,7 @@ public class MeasurementRepository : IMeasurementRepository
 
     public MeasurementRepository(SensixDbContext dbContext) => _dbContext = dbContext;
 
+    #region CRUD Operations
     public async Task AddAsync(Measurement measurement)
     {
         await _dbContext.Measurements.AddAsync(measurement);
@@ -57,5 +65,30 @@ public class MeasurementRepository : IMeasurementRepository
     {
         _dbContext.Measurements.Remove(measurement);
         return Task.CompletedTask;
+    }
+    #endregion
+
+    public async Task<List<Measurement>> GetBySensorIdAsync(
+        Guid sensorId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int limit,
+        bool desc)
+    {
+        IQueryable<Measurement> query = _dbContext.Measurements.AsNoTracking()
+            .Where(measurement => measurement.SensorId == sensorId);
+
+        if (fromUtc.HasValue)
+            query = query.Where(measurement => measurement.TimestampUtc >= fromUtc.Value);
+
+        if (toUtc.HasValue)
+            query = query.Where(measurement => measurement.TimestampUtc <= toUtc.Value);
+
+        if (desc)
+            query = query.OrderByDescending(measurement => measurement.TimestampUtc);
+        else
+            query = query.OrderBy(measurement => measurement.TimestampUtc);
+
+        return await query.Take(limit).ToListAsync();
     }
 }

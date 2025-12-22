@@ -25,6 +25,7 @@ public class MeasurementService : IMeasurementService
         _measurementRepository = measurementRepository;
     }
 
+    #region CRUD Operations
     public async Task<MeasurementResponse> CreateAsync(CreateMeasurementRequest request)
     {
         var measurement = new Measurement();
@@ -83,4 +84,28 @@ public class MeasurementService : IMeasurementService
 
         return true;
     }
+    #endregion
+
+    public async Task<List<Measurement>> GetBySensorIdAsync(
+        Guid sensorId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int limit,
+        string order)
+    {
+
+        int clampedLimit = Math.Clamp(limit, 1, 5000);
+
+        var desc = IsDesc(order);
+
+        return await _measurementRepository.GetBySensorIdAsync(
+            sensorId,
+            fromUtc,
+            toUtc,
+            clampedLimit,
+            desc);
+    }
+
+    private static bool IsDesc(string order)
+        => !string.Equals(order, "asc", StringComparison.OrdinalIgnoreCase);
 }
