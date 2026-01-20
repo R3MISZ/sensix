@@ -1,105 +1,99 @@
-<h1 align="center"><img src="docs/assets/sensix_logo.png" alt="Sensix" width="400"></h1>
+<h1 align="center"><img src="docs/assets/sensix_logo.png" alt="Sensix" width="300"></h1>
 
-<p align="center"><b>A modular REST API for ingesting, processing, and visualizing sensor data</b></p>
+<p align="center"><b>A lightweight system to collect, store, and visualize sensor data</b></p>
 
 ---
 
-The project (.NET 8 SDK) provides a structured, extensible pipeline powered by PostgreSQL, AutoMapper, DTO layers, and a clean controller design.
+## Why Sensix
+
+**Sensix** serves as a compact example of a full-stack, data-driven monitoring system with a clear domain model and time-series visualization.
+
+It manages **devices**, **sensors**, and **time-based measurements**, exposes the data through a clean REST API, and visualizes measurement histories in a web UI.
+
+The focus is clarity, clean data flow, and a maintainable architecture.
+
+---
+
+## How it works
+
+1. A **Device** represents a physical or logical source (e.g. PC, machine, room)
+2. A **Sensor** belongs to a device (e.g. temperature, humidity)
+3. A **Measurement** stores a value with unit and UTC timestamp
+4. The frontend fetches data from the API and renders time-series charts
+
+---
+
+## Frontend
+
+The frontend provides a simple overview of sensors and their measurement curves.
+
+![Frontend – Sensor List](docs/assets/sensix_frontend_dashboard.png)
+
+![Frontend – Sensor Measurements](docs/assets/sensix_frontend_sensor.png)
+
+---
+
+## API (Swagger)
+
+The backend exposes a REST API with full CRUD support for all core entities:
+
+- Devices
+- Sensors
+- Measurements
+
+All endpoints can be tested directly via Swagger UI.
+
+![Swagger UI](docs/assets/sensix_api_swagger.png)
+
+---
+
+## Database Model
+
+The PostgreSQL schema follows a clear relational structure:
+
+- **Devices → Sensors → Measurements**
+- Measurements are stored as time-series data
+- Designed for easy extension and querying
+
+![Database Schema](docs/assets/pgadmin_db_erd.png)
 
 ---
 
 ## Project Structure
 
-```bash
+```text
 src/
   backend/
-    Sensix.Api/             # ASP.NET Core API (Swagger UI, Controllers, DTOs)
+    Sensix.Api/             # ASP.NET Core API (Controllers, DTOs, Swagger)
     Sensix.Infrastructure/  # EF Core, PostgreSQL, Migrations
-  frontend/
+  frontend/                 # React Web UI
 ```
 
 ---
 
-## Features
+## Architecture
 
-- CRUD endpoints for **Devices**, **Sensors**, and **Measurements**  
-- Paging & filtering through `PagingQuery` and `FilterMeasurementDto`
-- **AutoMapper** for DTO ↔ Entity mapping  
-- **PostgreSQL** with EF Core migrations  
-- **Swagger UI** for live API testing  
-- Clean, layered architecture
+The system follows a clean, layered architecture with clearly defined responsibilities.
 
----
+- **API / Controllers**  
+  Controllers are responsible only for HTTP-related concerns such as routing, request validation, and returning appropriate status codes. They do not contain business logic.
 
-## Current State
+- **Service Layer**  
+  Services encapsulate the core business logic. They coordinate use cases, apply rules, and orchestrate interactions between repositories and other components.
 
-#### Swagger UI Overview
-![sensix_api_swagger](docs/assets/sensix_api_swagger.png)
+- **Data Access / Repositories**  
+  Repositories abstract database access and persistence logic. This keeps Entity Framework Core and PostgreSQL details isolated from the business layer.
 
-#### PostgreSQL Database Schema
-![pgadmin_db_erd](docs/assets/pgadmin_db_erd.png)
+- **DTOs (Data Transfer Objects)**  
+  DTOs define stable API contracts between the backend and external consumers. They prevent direct exposure of domain entities and ensure controlled data flow.
 
----
-
-## Example API Flow
-
-1. **Create Device**
-   ```json
-   POST /api/Devices
-   {
-     "name": "Dev-PC-Lab",
-     "description": "Test device",
-     "location": "Lab A"
-   }
-   ```
-
-2. **Create Sensor**
-   ```json
-   POST /api/Sensors
-   {
-     "deviceId": "<device-guid>",
-     "name": "CPU Temperature",
-     "unit": "°C"
-   }
-   ```
-
-3. **Create Measurement**
-   ```json
-   POST /api/Measurements
-   {
-     "sensorId": "<sensor-guid>",
-     "value": 42.5,
-     "timestampUtc": "2025-12-02T20:15:00Z",
-     "unit": "°C"
-   }
-   ```
-
-4. **Query Measurements**
-   - `/api/Measurements` → returns paged results  
-   - `/api/Measurements/latest` → returns most recent record  
-
----
-
-## Architectural Principles
-
-- **Separation of Concerns:** Clear division between API, Domain, and Infrastructure layers  
-- **DRY:** Shared paging logic via `PagingQuery`  
-- **DTO/Entity Mapping:** AutoMapper ensures clean translation between layers  
-- **Database-first Design:** PostgreSQL-backed EF Core migrations  
-
----
-
-## Planned Extensions
-
-- [ ] Frontend visualization (Web dashboard or WPF client)  
-- [ ] Measurement history chart
+This separation improves maintainability, testability, and long-term extensibility of the system.
 
 ---
 
 ## Tech Stack
 
-- .NET 8
-- ASP.NET Core Web API
-- Entity Framework Core (PostgreSQL)
-- AutoMapper
+- ASP.NET Core / .NET 8
+- PostgreSQL + Entity Framework Core
+- React (Vite)
 - Swagger / OpenAPI 3.0
