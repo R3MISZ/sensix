@@ -1,6 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_PREFIX = "/api";
 
+console.log("CURRENT API-URL:", API_BASE_URL);
+
 export type MeasurementDto = {
   id: string;
   sensorId: string;
@@ -17,10 +19,11 @@ export type SensorDto = {
 
 // #region Connection URL
 export async function http<T>(url: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${API_PREFIX}${url}`);
+  const fullUrl = `${API_BASE_URL}${API_PREFIX}${url}`;
+  const response = await fetch(fullUrl);
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    throw new Error(`HTTP ${response.status} @ ${fullUrl}: ${await response.text()}`);
   }
 
   return response.json();

@@ -1,4 +1,5 @@
-﻿using Sensix.Lib.Repository;
+﻿using Microsoft.Extensions.Options;
+using Sensix.Lib.Repository;
 using Sensix.Lib.Service;
 
 namespace Sensix.Api.Extensions;
@@ -24,9 +25,12 @@ public static class ServiceExtensions
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
-                policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod());
+                policy.WithOrigins(
+                    "http://localhost:3000", // Docker
+                    "http://localhost:5173" // Vite Dev
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
         });
     }
 }

@@ -3,7 +3,7 @@ using Sensix.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Register Services via Extensions ---
+// Register Services and Extensions
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -14,7 +14,7 @@ builder.Services.AddDatabaseContext(builder.Configuration);
 
 var app = builder.Build();
 
-// --- Middleware Pipeline ---
+// Middleware Pipeline
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -29,7 +29,7 @@ app.UseCors();
 
 app.MapControllers();
 
-// --- Startup Tasks ---
+// Startup Tasks
 await app.ApplyMigrationsAsync();
 
 app.Run();
