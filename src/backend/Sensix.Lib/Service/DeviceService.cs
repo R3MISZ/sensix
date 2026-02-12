@@ -16,13 +16,15 @@ public interface IDeviceService
 
 public class DeviceService : IDeviceService
 {
-    private readonly IDbRepository _dbRepository;
+    private readonly IUnitOfWork _dbRepository;
     private readonly IDeviceRepository _deviceRepository;
+    private readonly IMapper _mapper;
 
-    public DeviceService(IDbRepository dbRepository, IDeviceRepository deviceRepository)
+    public DeviceService(IUnitOfWork dbRepository, IDeviceRepository deviceRepository, IMapper mapper)
     {
         _dbRepository = dbRepository;
         _deviceRepository = deviceRepository;
+        _mapper = mapper;
     }
 
     public async Task<DeviceResponse> CreateAsync(CreateDeviceRequest request)

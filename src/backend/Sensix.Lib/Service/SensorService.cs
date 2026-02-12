@@ -16,13 +16,15 @@ public interface ISensorService
 
 public class SensorService : ISensorService
 {
-    private readonly IDbRepository _dbRepository;
+    private readonly IUnitOfWork _dbRepository;
     private readonly ISensorRepository _sensorRepository;
 
     public SensorService(IDbRepository dbRepository, ISensorRepository sensorRepository)
+    public SensorService(IUnitOfWork dbRepository, ISensorRepository sensorRepository, ILogger<ISensorService> logger)
     {
         _dbRepository = dbRepository;
         _sensorRepository = sensorRepository;
+        _logger = logger;
     }
 
     public async Task<SensorResponse> CreateAsync(CreateSensorRequest request)

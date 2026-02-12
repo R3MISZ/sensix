@@ -14,7 +14,7 @@ public static class ServiceExtensions
         services.AddScoped<IMeasurementService, MeasurementService>();
 
         // Repositories
-        services.AddScoped<IDbRepository, DbRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ISensorRepository, SensorRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IMeasurementRepository, MeasurementRepository>();

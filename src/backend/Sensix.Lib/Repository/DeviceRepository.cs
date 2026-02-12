@@ -15,9 +15,9 @@ public interface IDeviceRepository
 
 public class DeviceRepository : IDeviceRepository
 {
-    private readonly SensixDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public DeviceRepository(SensixDbContext dbContext) => _dbContext = dbContext;
+    public DeviceRepository(AppDbContext dbContext) => _dbContext = dbContext;
 
     public async Task AddAsync(Device device)
     {

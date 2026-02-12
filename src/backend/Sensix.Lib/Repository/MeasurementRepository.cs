@@ -28,9 +28,9 @@ public interface IMeasurementRepository
 
 public class MeasurementRepository : IMeasurementRepository
 {
-    private readonly SensixDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public MeasurementRepository(SensixDbContext dbContext) => _dbContext = dbContext;
+    public MeasurementRepository(AppDbContext dbContext) => _dbContext = dbContext;
 
     #region CRUD Operations
     public async Task AddAsync(Measurement measurement)

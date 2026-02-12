@@ -16,10 +16,10 @@ public interface IMeasurementService
 
 public class MeasurementService : IMeasurementService
 {
-    private readonly IDbRepository _dbRepository;
+    private readonly IUnitOfWork _dbRepository;
     private readonly IMeasurementRepository _measurementRepository;
 
-    public MeasurementService(IDbRepository dbRepository, IMeasurementRepository measurementRepository)
+    public MeasurementService(IUnitOfWork dbRepository, IMeasurementRepository measurementRepository)
     {
         _dbRepository = dbRepository;
         _measurementRepository = measurementRepository;

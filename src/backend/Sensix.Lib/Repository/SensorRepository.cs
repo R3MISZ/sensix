@@ -15,9 +15,9 @@ public interface ISensorRepository
 
 public class SensorRepository : ISensorRepository
 {
-    private readonly SensixDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public SensorRepository(SensixDbContext dbContext) => _dbContext = dbContext;
+    public SensorRepository(AppDbContext dbContext) => _dbContext = dbContext;
 
     public async Task AddAsync(Sensor sensor)
     {
