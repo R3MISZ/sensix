@@ -2,14 +2,21 @@
 
 public class Measurement
 {
-    // PK
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
+    public Guid SensorId { get; private set; }
+    public double Value { get; private set; }
+    public DateTime TimestampUtc { get; private set; }
 
-    // FK
-    public Guid SensorId { get; set; } // FK
-    public Sensor Sensor { get; set; } = null!;
+    // Navigation
+    public Sensor Sensor { get; private set; } = null!;
 
-    // Properties
-    public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
-    public double Value { get; set; } = 0.0;
+    private Measurement() { }
+
+    public Measurement(Guid sensorId, double value, DateTime? timestamp = null)
+    {
+        Id = Guid.NewGuid();
+        SensorId = sensorId;
+        Value = value;
+        TimestampUtc = timestamp ?? DateTime.UtcNow;
+    }
 }

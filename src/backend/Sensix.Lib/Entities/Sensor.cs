@@ -2,43 +2,33 @@
 
 public class Sensor
 {
-    // PK
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
+    public Guid DeviceId { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Type { get; private set; } = string.Empty;
+    public string? Unit { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTime CreatedAtUtc { get; private set; }
 
-    // FK
-    public Guid? DeviceId { get; private set; }
-    public Device? Device { get; private set; }
-
-    // Measurements
+    // Navigation
+    public Device Device { get; private set; } = null!;
     public ICollection<Measurement> Measurements { get; private set; } = new List<Measurement>();
 
-    // Properties
-    public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
-    public string? Name { get; private set; }
-    public string? Type { get; private set; } // temperature, humidity, rpm, ...
-    public string? Unit { get; private set; } // °C, %, ...
-    public bool IsActive { get; private set; } = false;
+    private Sensor() { }
 
-    public void SetName(string? name)
+    public Sensor(Guid deviceId, string name, string type, string? unit = null)
     {
-        Name = name?.Trim();
-    }
-    public void SetType(string? type)
-    {
-        Type = type?.Trim();
-    }
-
-    public void SetUnit(string? unit)
-    {
-        Unit = unit?.Trim();
-    }
-
-    public void Activate() => IsActive = true;
-    public void Deactivate() => IsActive = false;
-
-
-    public void SetDeviceId(Guid? deviceId)
-    {
+        Id = Guid.NewGuid();
         DeviceId = deviceId;
+        Update(name, type, unit);
+        IsActive = true;
+        CreatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void Update(string name, string type, string? unit)
+    {
+        Name = name.Trim();
+        Type = type.Trim();
+        Unit = unit?.Trim();
     }
 }

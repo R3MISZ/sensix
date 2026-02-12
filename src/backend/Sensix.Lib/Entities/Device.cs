@@ -2,27 +2,32 @@
 
 public class Device
 {
-    // PK
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string? Location { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTime CreatedAtUtc { get; private set; }
 
-    // FK
+    // Navigation property
     public ICollection<Sensor> Sensors { get; private set; } = new List<Sensor>();
 
-    // Properties
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
-    public string? Name { get; private set; }
-    public string? Location { get; private set; }
-    public bool IsActive { get; private set; } = false;
+    // EF Core 
+    private Device() { }
 
-
-    public void SetName(string? name)
+    // Logic for new device
+    public Device(string name, string? location = null)
     {
-        Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+        Id = Guid.NewGuid();
+        Update(name, location);
+        IsActive = true;
+        CreatedAtUtc = DateTime.UtcNow;
     }
 
-    public void SetLocation(string? location)
+    public void Update(string name, string? location)
     {
-        Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name darf nicht leer sein.");
+        Name = name.Trim();
+        Location = location?.Trim();
     }
 
     public void Activate() => IsActive = true;
