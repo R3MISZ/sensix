@@ -1,28 +1,21 @@
-using Sensix.Lib.Service;
+using Sensix.Api.Extensions;
+using Sensix.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- Register Services via Extensions ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-        policy.WithOrigins(
-            "http://localhost:5173",
-            "http://localhost:5174")
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});
-
-// Add Lib
-builder.Services.AddLibServices();
-
-//Add Database
-builder.Services.AddDatabaseService(builder.Configuration);
+builder.Services.AddCustomCors();
+builder.Services.AddApplicationServices();
+builder.Services.AddDatabaseContext(builder.Configuration);
 
 var app = builder.Build();
+
+// --- Middleware Pipeline ---
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -35,5 +28,8 @@ app.UseAuthorization();
 app.UseCors();
 
 app.MapControllers();
+
+// --- Startup Tasks ---
+await app.ApplyMigrationsAsync();
 
 app.Run();
