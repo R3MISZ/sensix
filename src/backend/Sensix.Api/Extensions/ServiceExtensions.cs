@@ -1,6 +1,7 @@
-﻿using Sensix.Lib.Repository;
-using Sensix.Lib.Service;
+﻿using Sensix.Lib.Database;
 using Sensix.Lib.Mapping;
+using Sensix.Lib.Repository;
+using Sensix.Lib.Service;
 
 namespace Sensix.Api.Extensions;
 
@@ -13,7 +14,7 @@ public static class ServiceExtensions
     public static void AddApplicationServices(this IServiceCollection services)
     {
         // Auto Mapper
-        services.AddAutoMapper(cfg =>{}, typeof(MappingProfile).Assembly);
+        services.AddAutoMapper(cfg => { }, typeof(AppDbContext).Assembly);
 
         // Business Logic
         services.AddScoped<IDeviceService, DeviceService>();

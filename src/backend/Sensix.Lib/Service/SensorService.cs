@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Sensix.Lib.Dtos;
 using Sensix.Lib.Entities;
 using Sensix.Lib.Mapping;
@@ -17,54 +18,37 @@ public interface ISensorService
 
 public class SensorService : ISensorService
 {
-    private readonly IUnitOfWork _dbRepository;
+    private readonly IUnitOfWork _uow;
     private readonly ISensorRepository _sensorRepository;
-    private readonly ILogger<ISensorService> _logger;
+    private readonly IMapper _mapper;
+    private readonly ILogger<SensorService> _logger;
 
-    public SensorService(IUnitOfWork dbRepository, ISensorRepository sensorRepository, ILogger<ISensorService> logger)
+    public SensorService(IUnitOfWork uow, ISensorRepository sensorRepository, IMapper mapper, ILogger<SensorService> logger)
     {
-        _dbRepository = dbRepository;
+        _uow = uow;
         _sensorRepository = sensorRepository;
+        _mapper = mapper;
         _logger = logger;
     }
 
     public async Task<SensorDto> CreateAsync(CreateSensorRequest request)
     {
-        var sensor = new Sensor();
-
-        sensor.SetDeviceId(request.DeviceId);
-
-        sensor.SetName(request.Name);
-        sensor.SetType(request.Type);
-        sensor.SetUnit(request.Unit);
-
-        if (request.IsActive is true) sensor.Activate();
-        else if (request.IsActive is false) sensor.Deactivate();
-
+        var sensor = _mapper.Map<Sensor>(request);
         await _sensorRepository.AddAsync(sensor);
-        await _dbRepository.SaveChangesAsync();
-
-        return SensorMapping.ToResponse(sensor);
+        await _uow.SaveChangesAsync();
+        return _mapper.Map<SensorDto>(sensor);
     }
 
     public async Task<IReadOnlyList<SensorDto>> GetAllAsync()
     {
         var sensors = await _sensorRepository.GetAllAsync();
-
-        return SensorMapping.ToResponseList(sensors);
+        return _mapper.Map<IReadOnlyList<SensorDto>>(sensors);
     }
 
     public async Task<SensorDto?> GetByIdAsync(Guid id)
     {
         var sensor = await _sensorRepository.GetByIdNoTrackingAsync(id);
-
-        if (sensor is null)
-        { 
-            _logger.LogWarning("Sensor with id {SensorId} not found", id);
-            return null;
-        } 
-
-        return SensorMapping.ToResponse(sensor);
+        return sensor is null ? null : _mapper.Map<SensorDto>(sensor);
     }
 
     public async Task<SensorDto?> UpdateAsync(Guid id, UpdateSensorRequest request)
@@ -72,34 +56,20 @@ public class SensorService : ISensorService
         var sensor = await _sensorRepository.GetByIdAsync(id);
         if (sensor is null) return null;
 
-        if (request.DeviceId is not null)
-            sensor.SetDeviceId(request.DeviceId.Value);
+        // AutoMapper calls dest.Update(...) 
+        _mapper.Map(request, sensor);
 
-        if (request.Name is not null)
-            sensor.SetName(request.Name);
-
-        if (request.Type is not null)
-            sensor.SetType(request.Type);
-
-        if (request.Unit is not null)
-            sensor.SetUnit(request.Unit);
-
-        if (request.IsActive is true) sensor.Activate();
-        else if (request.IsActive is false) sensor.Deactivate();
-
-        await _dbRepository.SaveChangesAsync();
-        return SensorMapping.ToResponse(sensor);
+        await _uow.SaveChangesAsync();
+        return _mapper.Map<SensorDto>(sensor);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
         var sensor = await _sensorRepository.GetByIdAsync(id);
-        if (sensor is null)
-            return false;
+        if (sensor is null) return false;
 
         await _sensorRepository.RemoveAsync(sensor);
-        await _dbRepository.SaveChangesAsync();
-
+        await _uow.SaveChangesAsync();
         return true;
     }
 }

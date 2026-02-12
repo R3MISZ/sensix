@@ -39,15 +39,6 @@ public class MeasurementsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<MeasurementDto>> Update(Guid id, [FromBody] UpdateMeasurementRequest request)
-    {
-        var result = await _measurementService.UpdateAsync(id, request);
-        if (result is null)
-            return NotFound();
-        return Ok(result);
-    }
-
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete([FromRoute] Guid id)
     {

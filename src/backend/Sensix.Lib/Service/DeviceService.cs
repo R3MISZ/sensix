@@ -17,23 +17,24 @@ public interface IDeviceService
 
 public class DeviceService : IDeviceService
 {
-    private readonly IUnitOfWork _dbRepository;
+    private readonly IUnitOfWork _uow;
     private readonly IDeviceRepository _deviceRepository;
     private readonly IMapper _mapper;
 
-    public DeviceService(IUnitOfWork dbRepository, IDeviceRepository deviceRepository, IMapper mapper)
+    public DeviceService(IUnitOfWork uow, IDeviceRepository deviceRepository, IMapper mapper)
     {
-        _dbRepository = dbRepository;
+        _uow = uow;
         _deviceRepository = deviceRepository;
         _mapper = mapper;
     }
 
     public async Task<DeviceDto> CreateAsync(CreateDeviceRequest request)
     {
+        // Nutzt jetzt ConstructUsing im MappingProfile (via Device-Konstruktor)
         var device = _mapper.Map<Device>(request);
 
         await _deviceRepository.AddAsync(device);
-        await _dbRepository.SaveChangesAsync();
+        await _uow.SaveChangesAsync();
 
         return _mapper.Map<DeviceDto>(device);
     }
@@ -41,45 +42,33 @@ public class DeviceService : IDeviceService
     public async Task<IReadOnlyList<DeviceDto>> GetAllAsync()
     {
         var devices = await _deviceRepository.GetAllAsync();
-
         return _mapper.Map<IReadOnlyList<DeviceDto>>(devices);
     }
 
     public async Task<DeviceDto?> GetByIdAsync(Guid id)
     {
         var device = await _deviceRepository.GetByIdNoTrackingAsync(id);
-
-        // return -> if (true) ? then : else
-        return (device is null) ? null : _mapper.Map<DeviceDto>(device);
+        return device is null ? null : _mapper.Map<DeviceDto>(device);
     }
 
     public async Task<DeviceDto?> UpdateAsync(Guid id, UpdateDeviceRequest request)
     {
         var device = await _deviceRepository.GetByIdAsync(id);
-
         if (device is null) return null;
 
         _mapper.Map(request, device);
 
-        if (request.Name is not null)
-            device.SetName(request.Name);
-
-        if (request.Location is not null)
-            device.SetLocation(request.Location);
-
-        await _dbRepository.SaveChangesAsync();
+        await _uow.SaveChangesAsync();
         return _mapper.Map<DeviceDto>(device);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
         var device = await _deviceRepository.GetByIdAsync(id);
-
         if (device is null) return false;
 
         await _deviceRepository.RemoveAsync(device);
-        await _dbRepository.SaveChangesAsync();
-
+        await _uow.SaveChangesAsync();
         return true;
     }
 }

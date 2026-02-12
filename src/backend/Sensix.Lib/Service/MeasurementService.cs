@@ -1,4 +1,5 @@
-﻿using Sensix.Lib.Dtos;
+﻿using AutoMapper;
+using Sensix.Lib.Dtos;
 using Sensix.Lib.Entities;
 using Sensix.Lib.Mapping;
 using Sensix.Lib.Repository;
@@ -10,102 +11,48 @@ public interface IMeasurementService
     Task<MeasurementDto> CreateAsync(CreateMeasurementRequest request);
     Task<IReadOnlyList<MeasurementDto>> GetAllAsync();
     Task<MeasurementDto?> GetByIdAsync(Guid id);
-    Task<MeasurementDto?> UpdateAsync(Guid id, UpdateMeasurementRequest request);
     Task<bool> DeleteAsync(Guid id);
 }
-
 public class MeasurementService : IMeasurementService
 {
-    private readonly IUnitOfWork _dbRepository;
+    private readonly IUnitOfWork _uow;
     private readonly IMeasurementRepository _measurementRepository;
+    private readonly IMapper _mapper;
 
-    public MeasurementService(IUnitOfWork dbRepository, IMeasurementRepository measurementRepository)
+    public MeasurementService(IUnitOfWork uow, IMeasurementRepository measurementRepository, IMapper mapper)
     {
-        _dbRepository = dbRepository;
+        _uow = uow;
         _measurementRepository = measurementRepository;
+        _mapper = mapper;
     }
 
-    #region CRUD Operations
     public async Task<MeasurementDto> CreateAsync(CreateMeasurementRequest request)
     {
-        var measurement = new Measurement();
-
-        measurement.SensorId = request.SensorId;
-        measurement.TimestampUtc = request.TimestampUtc;
-        measurement.Value = request.Value;
-
+        var measurement = _mapper.Map<Measurement>(request);
         await _measurementRepository.AddAsync(measurement);
-        await _dbRepository.SaveChangesAsync();
-
-        return MeasurementMapping.ToResponse(measurement);
+        await _uow.SaveChangesAsync();
+        return _mapper.Map<MeasurementDto>(measurement);
     }
 
     public async Task<IReadOnlyList<MeasurementDto>> GetAllAsync()
     {
         var measurements = await _measurementRepository.GetAllAsync();
-
-        return MeasurementMapping.ToResponseList(measurements);
+        return _mapper.Map<IReadOnlyList<MeasurementDto>>(measurements);
     }
 
     public async Task<MeasurementDto?> GetByIdAsync(Guid id)
     {
         var measurement = await _measurementRepository.GetByIdNoTrackingAsync(id);
-        if (measurement is null) return null;
-
-        return MeasurementMapping.ToResponse(measurement);
-    }
-
-    public async Task<MeasurementDto?> UpdateAsync(Guid id, UpdateMeasurementRequest request)
-    {
-        var measurement = await _measurementRepository.GetByIdAsync(id);
-        if (measurement is null) return null;
-
-        if (request.SensorId is not null)
-            measurement.SensorId = request.SensorId.Value;
-
-        if (request.TimestampUtc is not null)
-            measurement.TimestampUtc = request.TimestampUtc.Value;
-
-        if (request.Value is not null)
-            measurement.Value = request.Value.Value;
-
-        await _dbRepository.SaveChangesAsync();
-        return MeasurementMapping.ToResponse(measurement);
+        return measurement is null ? null : _mapper.Map<MeasurementDto>(measurement);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
         var measurement = await _measurementRepository.GetByIdAsync(id);
-        if (measurement is null)
-            return false;
+        if (measurement is null) return false;
 
         await _measurementRepository.RemoveAsync(measurement);
-        await _dbRepository.SaveChangesAsync();
-
+        await _uow.SaveChangesAsync();
         return true;
     }
-    #endregion
-
-    public async Task<List<Measurement>> GetBySensorIdAsync(
-        Guid sensorId,
-        DateTime? fromUtc,
-        DateTime? toUtc,
-        int limit,
-        string order)
-    {
-
-        int clampedLimit = Math.Clamp(limit, 1, 5000);
-
-        var desc = IsDesc(order);
-
-        return await _measurementRepository.GetBySensorIdAsync(
-            sensorId,
-            fromUtc,
-            toUtc,
-            clampedLimit,
-            desc);
-    }
-
-    private static bool IsDesc(string order)
-        => !string.Equals(order, "asc", StringComparison.OrdinalIgnoreCase);
 }
