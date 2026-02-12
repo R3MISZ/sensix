@@ -7,10 +7,10 @@ namespace Sensix.Lib.Service;
 
 public interface IMeasurementService
 {
-    Task<MeasurementResponse> CreateAsync(CreateMeasurementRequest request);
-    Task<IReadOnlyList<MeasurementResponse>> GetAllAsync();
-    Task<MeasurementResponse?> GetByIdAsync(Guid id);
-    Task<MeasurementResponse?> UpdateAsync(Guid id, UpdateMeasurementRequest request);
+    Task<MeasurementDto> CreateAsync(CreateMeasurementRequest request);
+    Task<IReadOnlyList<MeasurementDto>> GetAllAsync();
+    Task<MeasurementDto?> GetByIdAsync(Guid id);
+    Task<MeasurementDto?> UpdateAsync(Guid id, UpdateMeasurementRequest request);
     Task<bool> DeleteAsync(Guid id);
 }
 
@@ -26,7 +26,7 @@ public class MeasurementService : IMeasurementService
     }
 
     #region CRUD Operations
-    public async Task<MeasurementResponse> CreateAsync(CreateMeasurementRequest request)
+    public async Task<MeasurementDto> CreateAsync(CreateMeasurementRequest request)
     {
         var measurement = new Measurement();
 
@@ -40,14 +40,14 @@ public class MeasurementService : IMeasurementService
         return MeasurementMapping.ToResponse(measurement);
     }
 
-    public async Task<IReadOnlyList<MeasurementResponse>> GetAllAsync()
+    public async Task<IReadOnlyList<MeasurementDto>> GetAllAsync()
     {
         var measurements = await _measurementRepository.GetAllAsync();
 
         return MeasurementMapping.ToResponseList(measurements);
     }
 
-    public async Task<MeasurementResponse?> GetByIdAsync(Guid id)
+    public async Task<MeasurementDto?> GetByIdAsync(Guid id)
     {
         var measurement = await _measurementRepository.GetByIdNoTrackingAsync(id);
         if (measurement is null) return null;
@@ -55,7 +55,7 @@ public class MeasurementService : IMeasurementService
         return MeasurementMapping.ToResponse(measurement);
     }
 
-    public async Task<MeasurementResponse?> UpdateAsync(Guid id, UpdateMeasurementRequest request)
+    public async Task<MeasurementDto?> UpdateAsync(Guid id, UpdateMeasurementRequest request)
     {
         var measurement = await _measurementRepository.GetByIdAsync(id);
         if (measurement is null) return null;

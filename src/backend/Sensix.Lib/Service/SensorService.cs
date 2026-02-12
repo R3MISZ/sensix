@@ -8,10 +8,10 @@ namespace Sensix.Lib.Service;
 
 public interface ISensorService
 {
-    Task<SensorResponse> CreateAsync(CreateSensorRequest request);
-    Task<IReadOnlyList<SensorResponse>> GetAllAsync();
-    Task<SensorResponse?> GetByIdAsync(Guid id);
-    Task<SensorResponse?> UpdateAsync(Guid id, UpdateSensorRequest request);
+    Task<SensorDto> CreateAsync(CreateSensorRequest request);
+    Task<IReadOnlyList<SensorDto>> GetAllAsync();
+    Task<SensorDto?> GetByIdAsync(Guid id);
+    Task<SensorDto?> UpdateAsync(Guid id, UpdateSensorRequest request);
     Task<bool> DeleteAsync(Guid id);
 }
 
@@ -28,7 +28,7 @@ public class SensorService : ISensorService
         _logger = logger;
     }
 
-    public async Task<SensorResponse> CreateAsync(CreateSensorRequest request)
+    public async Task<SensorDto> CreateAsync(CreateSensorRequest request)
     {
         var sensor = new Sensor();
 
@@ -47,14 +47,14 @@ public class SensorService : ISensorService
         return SensorMapping.ToResponse(sensor);
     }
 
-    public async Task<IReadOnlyList<SensorResponse>> GetAllAsync()
+    public async Task<IReadOnlyList<SensorDto>> GetAllAsync()
     {
         var sensors = await _sensorRepository.GetAllAsync();
 
         return SensorMapping.ToResponseList(sensors);
     }
 
-    public async Task<SensorResponse?> GetByIdAsync(Guid id)
+    public async Task<SensorDto?> GetByIdAsync(Guid id)
     {
         var sensor = await _sensorRepository.GetByIdNoTrackingAsync(id);
 
@@ -67,7 +67,7 @@ public class SensorService : ISensorService
         return SensorMapping.ToResponse(sensor);
     }
 
-    public async Task<SensorResponse?> UpdateAsync(Guid id, UpdateSensorRequest request)
+    public async Task<SensorDto?> UpdateAsync(Guid id, UpdateSensorRequest request)
     {
         var sensor = await _sensorRepository.GetByIdAsync(id);
         if (sensor is null) return null;

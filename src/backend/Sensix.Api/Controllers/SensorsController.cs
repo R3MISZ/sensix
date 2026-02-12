@@ -17,21 +17,21 @@ public class SensorsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<SensorResponse>> Create([FromBody] CreateSensorRequest request)
+    public async Task<ActionResult<SensorDto>> Create([FromBody] CreateSensorRequest request)
     {
         var result = await _sensorService.CreateAsync(request);
         return Ok(result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<SensorResponse>>> ReadAll()
+    public async Task<ActionResult<IReadOnlyList<SensorDto>>> ReadAll()
     {
         var result = await _sensorService.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<SensorResponse>> ReadById([FromRoute] Guid id)
+    public async Task<ActionResult<SensorDto>> ReadById([FromRoute] Guid id)
     {
         var result = await _sensorService.GetByIdAsync(id);
         if (result is null)
@@ -40,7 +40,7 @@ public class SensorsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<SensorResponse>> Update(Guid id, [FromBody] UpdateSensorRequest request)
+    public async Task<ActionResult<SensorDto>> Update(Guid id, [FromBody] UpdateSensorRequest request)
     {
         var result = await _sensorService.UpdateAsync(id, request);
         if (result is null)

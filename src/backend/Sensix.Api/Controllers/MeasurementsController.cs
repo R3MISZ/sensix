@@ -17,21 +17,21 @@ public class MeasurementsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<MeasurementResponse>> Create([FromBody] CreateMeasurementRequest request)
+    public async Task<ActionResult<MeasurementDto>> Create([FromBody] CreateMeasurementRequest request)
     {
         var result = await _measurementService.CreateAsync(request);
         return Ok(result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<MeasurementResponse>>> ReadAll()
+    public async Task<ActionResult<IReadOnlyList<MeasurementDto>>> ReadAll()
     {
         var result = await _measurementService.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<MeasurementResponse>> ReadById([FromRoute] Guid id)
+    public async Task<ActionResult<MeasurementDto>> ReadById([FromRoute] Guid id)
     {
         var result = await _measurementService.GetByIdAsync(id);
         if (result is null)
@@ -40,7 +40,7 @@ public class MeasurementsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<MeasurementResponse>> Update(Guid id, [FromBody] UpdateMeasurementRequest request)
+    public async Task<ActionResult<MeasurementDto>> Update(Guid id, [FromBody] UpdateMeasurementRequest request)
     {
         var result = await _measurementService.UpdateAsync(id, request);
         if (result is null)

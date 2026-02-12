@@ -14,12 +14,12 @@ public class MappingProfile : Profile
         // Prevents overwriting existing data with NULL
         CreateMap<UpdateDeviceRequest, Device>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-        //// Sensor Mappings
-        //CreateMap<Sensor, SensorDto>();
-        //CreateMap<CreateSensorRequest, Sensor>();
+        // Sensor Mappings
+        CreateMap<Sensor, SensorDto>();
+        CreateMap<CreateSensorRequest, Sensor>();
 
-        //// Measurement Mappings
-        //CreateMap<Measurement, MeasurementDto>();
-        //CreateMap<CreateMeasurementRequest, Measurement>();
+        // Measurement Mappings
+        CreateMap<Measurement, MeasurementDto>();
+        CreateMap<CreateMeasurementRequest, Measurement>();
     }
 }

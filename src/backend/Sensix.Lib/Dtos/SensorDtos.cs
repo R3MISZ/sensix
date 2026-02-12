@@ -1,30 +1,31 @@
 ﻿namespace Sensix.Lib.Dtos;
 
-public class CreateSensorRequest
+// Input
+public record CreateSensorRequest
 {
-    public Guid? DeviceId { get; set; }
-    public string? Name { get; set; }
-    public string? Type { get; set; }
-    public string? Unit { get; set; }
-    public bool? IsActive { get; set; }
+    public Guid DeviceId { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Type { get; init; } = string.Empty;
+    public string? Unit { get; init; }
+    public bool IsActive { get; init; } = true;
 }
 
-public class UpdateSensorRequest
+public record UpdateSensorRequest
 {
-    public Guid? DeviceId { get; set; }
-    public string? Name { get; set; }
-    public string? Type { get; set; }
-    public string? Unit { get; set; }
-    public bool? IsActive { get; set; }
+    public string Name { get; init; } = string.Empty;
+    public string Type { get; init; } = string.Empty;
+    public string? Unit { get; init; }
+    public bool IsActive { get; init; }
 }
 
-public class SensorResponse
+// Output
+public record SensorDto
 {
-    public Guid Id { get; set; }
-    public DateTime CreatedAtUtc { get; set; }
-    public Guid? DeviceId { get; set; }
-    public string? Name { get; set; }
-    public string? Type { get; set; }
-    public string? Unit { get; set; }
-    public bool IsActive { get; set; }
+    public Guid Id { get; init; }
+    public Guid DeviceId { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Type { get; init; } = string.Empty;
+    public string? Unit { get; init; }
+    public bool IsActive { get; init; }
+    public DateTime CreatedAtUtc { get; init; }
 }

@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Sensix.Lib.Dtos;
 
-namespace Sensix.Lib.Dtos;
-
-public class CreateMeasurementRequest
+// Input
+public record CreateMeasurementRequest
 {
-    public Guid SensorId { get; set; }
-    public DateTime TimestampUtc { get; set; }
-    public double Value { get; set; }
+    public Guid SensorId { get; init; }
+    public double Value { get; init; }
+    public DateTime TimestampUtc { get; init; } = DateTime.UtcNow;
 }
 
-public class UpdateMeasurementRequest
+public record UpdateMeasurementRequest
 {
-    public Guid? SensorId { get; set; }
-    public DateTime? TimestampUtc { get; set; }
-    public double? Value { get; set; }
+    public double Value { get; init; }
+    public DateTime TimestampUtc { get; init; }
 }
 
-public class MeasurementResponse
+// Output
+public record MeasurementDto
 {
-    public Guid Id { get; set; }
-    public Guid SensorId { get; set; }
-    public DateTime TimestampUtc { get; set; }
-    public double Value { get; set; }
+    public Guid Id { get; init; }
+    public Guid SensorId { get; init; }
+    public double Value { get; init; }
+    public DateTime TimestampUtc { get; init; }
 }
