@@ -16,21 +16,21 @@ public class DevicesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<DeviceResponse>> Create([FromBody] CreateDeviceRequest request)
+    public async Task<ActionResult<DeviceDto>> Create([FromBody] CreateDeviceRequest request)
     {
         var result = await _deviceService.CreateAsync(request);
         return Ok(result);
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<DeviceResponse>>> ReadAll()
+    public async Task<ActionResult<IReadOnlyList<DeviceDto>>> ReadAll()
     {
         var result = await _deviceService.GetAllAsync();
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<DeviceResponse>> ReadById([FromRoute] Guid id)
+    public async Task<ActionResult<DeviceDto>> ReadById([FromRoute] Guid id)
     {
         var result = await _deviceService.GetByIdAsync(id);
         if (result is null)
@@ -39,7 +39,7 @@ public class DevicesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<DeviceResponse>> Update(Guid id, [FromBody] UpdateDeviceRequest request)
+    public async Task<ActionResult<DeviceDto>> Update(Guid id, [FromBody] UpdateDeviceRequest request)
     {
         var result = await _deviceService.UpdateAsync(id, request);
         if (result is null)

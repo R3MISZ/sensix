@@ -1,5 +1,6 @@
-﻿using Sensix.Lib.Entities;
+﻿using Microsoft.Extensions.Logging;
 using Sensix.Lib.Dtos;
+using Sensix.Lib.Entities;
 using Sensix.Lib.Mapping;
 using Sensix.Lib.Repository;
 
@@ -18,8 +19,8 @@ public class SensorService : ISensorService
 {
     private readonly IUnitOfWork _dbRepository;
     private readonly ISensorRepository _sensorRepository;
+    private readonly ILogger<ISensorService> _logger;
 
-    public SensorService(IDbRepository dbRepository, ISensorRepository sensorRepository)
     public SensorService(IUnitOfWork dbRepository, ISensorRepository sensorRepository, ILogger<ISensorService> logger)
     {
         _dbRepository = dbRepository;
@@ -56,7 +57,12 @@ public class SensorService : ISensorService
     public async Task<SensorResponse?> GetByIdAsync(Guid id)
     {
         var sensor = await _sensorRepository.GetByIdNoTrackingAsync(id);
-        if (sensor is null) return null;
+
+        if (sensor is null)
+        { 
+            _logger.LogWarning("Sensor with id {SensorId} not found", id);
+            return null;
+        } 
 
         return SensorMapping.ToResponse(sensor);
     }

@@ -1,23 +1,26 @@
 ﻿namespace Sensix.Lib.Dtos;
 
-public class CreateDeviceRequest
+// Input
+public record CreateDeviceRequest
 {
-    public string? Name { get; set; }
-    public string? Location { get; set; }
-    public bool? IsActive { get; set; }
+    public string Name { get; init; } = string.Empty;
+    public string? Location { get; init; }
+    public bool IsActive { get; init; } = true;
 }
 
-public class UpdateDeviceRequest
+public record UpdateDeviceRequest
 {
-    public string? Name { get; set; }
-    public string? Location { get; set; }
-    public bool? IsActive { get; set; }
+    public string Name { get; init; } = string.Empty;
+    public string? Location { get; init; }
+    public bool IsActive { get; init; }
 }
 
-public class DeviceResponse
+// Output
+public record DeviceDto
 {
-    public Guid Id { get; set; }
-    public string? Name { get; set; }
-    public string? Location { get; set; }
-    public bool IsActive { get; set; }
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string? Location { get; init; }
+    public bool IsActive { get; init; }
+    public DateTime CreatedAtUtc { get; init; }
 }

@@ -1,13 +1,20 @@
-﻿using Microsoft.Extensions.Options;
-using Sensix.Lib.Repository;
+﻿using Sensix.Lib.Repository;
 using Sensix.Lib.Service;
+using Sensix.Lib.Mapping;
 
 namespace Sensix.Api.Extensions;
 
 public static class ServiceExtensions
 {
+    /// <summary>
+    /// Dependency Injection for Services, Repositories & AutoMapper
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddApplicationServices(this IServiceCollection services)
     {
+        // Auto Mapper
+        services.AddAutoMapper(cfg =>{}, typeof(MappingProfile).Assembly);
+
         // Business Logic
         services.AddScoped<IDeviceService, DeviceService>();
         services.AddScoped<ISensorService, SensorService>();
@@ -20,6 +27,10 @@ public static class ServiceExtensions
         services.AddScoped<IMeasurementRepository, MeasurementRepository>();
     }
 
+    /// <summary>
+    /// Set allowed urls
+    /// </summary>
+    /// <param name="services"></param>
     public static void AddCustomCors(this IServiceCollection services)
     {
         services.AddCors(options =>
