@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sensix-db
+    profiles: ["db", "all"]
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-sensix_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sensix-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sensix_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: 
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: sensix-api
+    profiles: ["api", "all"]
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy # Wait for DB then start
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${DB_NAME:-sensix_db};Username=${DB_USER:-user};Password=${DB_PASSWORD:-password}
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    networks:
+      - sensix-network
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: sensix-ui
+    profiles: ["web", "all"]
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - sensix-network
+
+networks:
+  sensix-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
