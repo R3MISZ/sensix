@@ -1,99 +1,81 @@
+
 <h1 align="center"><img src="docs/assets/sensix_logo.png" alt="Sensix" width="300"></h1>
 
-<p align="center"><b>A lightweight system to collect, store, and visualize sensor data</b></p>
+<h4 align="center" fontsize="10"><b>Full-stack sensor monitoring system with time-series visualization</b></h4>
 
 ---
 
-## Why Sensix
-
-**Sensix** serves as a compact example of a full-stack, data-driven monitoring system with a clear domain model and time-series visualization.
-
-It manages **devices**, **sensors**, and **time-based measurements**, exposes the data through a clean REST API, and visualizes measurement histories in a web UI.
-
-The focus is clarity, clean data flow, and a maintainable architecture.
+![Dashboard](docs/assets/sensix_frontend.png)
 
 ---
 
-## How it works
+## 🚀 Quick Start
 
-1. A **Device** represents a physical or logical source (e.g. PC, machine, room)
-2. A **Sensor** belongs to a device (e.g. temperature, humidity)
-3. A **Measurement** stores a value with unit and UTC timestamp
-4. The frontend fetches data from the API and renders time-series charts
-
----
-
-## Frontend
-
-The frontend provides a simple overview of sensors and their measurement curves.
-
-![Frontend – Sensor List](docs/assets/sensix_frontend_dashboard.png)
-
-![Frontend – Sensor Measurements](docs/assets/sensix_frontend_sensor.png)
-
----
-
-## API (Swagger)
-
-The backend exposes a REST API with full CRUD support for all core entities:
-
-- Devices
-- Sensors
-- Measurements
-
-All endpoints can be tested directly via Swagger UI.
-
-![Swagger UI](docs/assets/sensix_api_swagger.png)
-
----
-
-## Database Model
-
-The PostgreSQL schema follows a clear relational structure:
-
-- **Devices → Sensors → Measurements**
-- Measurements are stored as time-series data
-- Designed for easy extension and querying
-
-![Database Schema](docs/assets/pgadmin_db_erd.png)
-
----
-
-## Project Structure
-
-```text
-src/
-  backend/
-    Sensix.Api/             # ASP.NET Core API (Controllers, DTOs, Swagger)
-    Sensix.Infrastructure/  # EF Core, PostgreSQL, Migrations
-  frontend/                 # React Web UI
+```bash
+# Clone and start the entire stack via Docker
+docker-compose --profile all up --build
 ```
 
 ---
 
-## Architecture
+## 📄 Services Overview
 
-The system follows a clean, layered architecture with clearly defined responsibilities.
-
-- **API / Controllers**  
-  Controllers are responsible only for HTTP-related concerns such as routing, request validation, and returning appropriate status codes. They do not contain business logic.
-
-- **Service Layer**  
-  Services encapsulate the core business logic. They coordinate use cases, apply rules, and orchestrate interactions between repositories and other components.
-
-- **Data Access / Repositories**  
-  Repositories abstract database access and persistence logic. This keeps Entity Framework Core and PostgreSQL details isolated from the business layer.
-
-- **DTOs (Data Transfer Objects)**  
-  DTOs define stable API contracts between the backend and external consumers. They prevent direct exposure of domain entities and ensure controlled data flow.
-
-This separation improves maintainability, testability, and long-term extensibility of the system.
+| Service | URL | Tech Stack |
+| :--- | :--- | :--- |
+| **Frontend** | `localhost:3000` | `React`, `Vite`, `TypeScript`, `Recharts` |
+| **Backend** | `localhost:5000/swagger` | `ASP.NET Core (.NET 8)`, `EF Core` |
+| **Database** | `localhost:5432` | `PostgreSQL` |
+| **Tooling** | `-` | `Docker`, `Postman` |
 
 ---
 
-## Tech Stack
+## 🛠️ Architecture & Engineering
 
-- ASP.NET Core / .NET 8
-- PostgreSQL + Entity Framework Core
-- React (Vite)
-- Swagger / OpenAPI 3.0
+The backend follows a strict **Separation of Concerns** to ensure testability and scalability:
+
+| Layer | Responsibility | Professional Value |
+| :--- | :--- | :--- |
+| **DTOs** | API Contracts | Contract Stability |
+| **Controllers** | HTTP Handling | Clean API Surface |
+| **Services** | Business Logic | Use Case Encapsulation |
+| **Repositories** | Data Abstraction | Decoupled Persistence |
+| **Entities** | Domain Model | Encapsulated Behavior |
+| **DevOps** | Dockerization | Deployment Reliability |
+
+---
+
+
+## 📊 Core Domain Model
+
+* **Devices:** Physical sources (e.g. RasperyPi 4)
+* **Sensors:** Connected to device (e.g., temperature, humidity)
+* **Measurements:** Collected data from sensor with UTC timestamps
+
+
+---
+
+## 🌳 Project Structure
+
+```
+sensix/
+├── src/
+│   ├── backend/
+│   │   ├── Sensix.Api/          # API Layer: Controllers & Middleware
+│   │   ├── Sensix.Lib/          # Core: Business Logic, Entities & Repositories
+│   │   └── Sensix.sln
+│   └── frontend/
+│       ├── src/
+│       │   ├── api/             # API Client
+│       │   ├── components/      # UI Components & Modals
+│       │   ├── pages/           # Route-level components
+│       │   └── types/           # TypeScript Interfaces (Entities/DTOs)
+├── docs/                        # Screenshots & Documentation
+├── docker-compose.yml           # Infrastructure as Code
+└── README.md
+```
+
+---
+
+## 🎯 Purpose
+
+This project serves as a practical example of building a clean, production-style full-stack system with a strong architectural foundation and clear data flow.
