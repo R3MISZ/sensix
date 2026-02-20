@@ -1,25 +1,25 @@
 export interface Device {
-  createdAt?:string;
+  createdAtUtc:number;
   id:string;
   name:string;
-  status:string;
+  isActive:boolean;
   location?:string;
   sensor_id?:string;
 }
 
 export interface Sensor {
-  createdAt?:string;
+  createdAtUtc:number;
   id:string;
-  device_id:string;
+  deviceId:string;
   name:string;
-  status:string;
+  isActive:boolean;
   unit:string;
+  type:string;
 }
 
 export interface Measurement {
-  createdAt?:string;
+  timestampUtc:number;
   id:string;
-  sensor_id:string;
-  timeStamp: number;
+  sensorId:string;
   value:number;
 }

@@ -9,24 +9,24 @@ const generateMockData = (
   const now = Date.now();
   return Array.from({ length: count }).map((_, i) => ({
     id: `mea_${sensorId}_${i}`,
-    sensor_id: sensorId,
-    timeStamp: now - (count - i) * 600_000, 
+    sensorId: sensorId,
+    timestampUtc: now - (count - i) * 600_000, 
     value: Number((min + Math.random() * (max - min)).toFixed(1))
   }));
 };
 
 export const mock_devices: Device[] = [
-    { id: "dev_a", name: "Device A", status: "online", location: "location-a"},
-    { id: "dev_b", name: "Device B", status: "online", location: "location-b" },
-    { id: "dev_c", name: "Device C", status: "offline", location: "location-c"},
-    { id: "dev_d", name: "Device D", status: "offline", location: "location-d"},
+    { createdAtUtc: Date.now(), id: "dev_a", name: "Device A", isActive: true, location: "Lab-a"},
+    { createdAtUtc: Date.now(), id: "dev_b", name: "Device B", isActive: true, location: "Lab-b" },
+    { createdAtUtc: Date.now(), id: "dev_c", name: "Device C", isActive: false, location: "Lab-c"},
+    { createdAtUtc: Date.now(), id: "dev_d", name: "Device D", isActive: false, location: "Lab-d"},
   ]
 
 export const mock_sensors: Sensor[] = [
-    { id: "sen_a", device_id: "dev_a", name: "Sensor A", status: "online", unit: "°C"},
-    { id: "sen_x", device_id: "dev_a", name: "Sensor X", status: "online", unit: "%"},
-    { id: "sen_b", device_id: "dev_b", name: "Sensor B", status: "online", unit: "%" },
-    { id: "sen_c", device_id: "dev_c", name: "Sensor C", status: "offline", unit: "bar"},
+    { createdAtUtc: Date.now(), id: "sen_a", deviceId: "dev_a", name: "Sensor A", type: "Temperature",  unit: "°C", isActive: true},
+    { createdAtUtc: Date.now(), id: "sen_x", deviceId: "dev_a", name: "Sensor X", type: "Humidity",  unit: "%", isActive: true},
+    { createdAtUtc: Date.now(), id: "sen_b", deviceId: "dev_b", name: "Sensor B", type: "Humidity",  unit: "%", isActive: true},
+    { createdAtUtc: Date.now(), id: "sen_c", deviceId: "dev_c", name: "Sensor C", type: "Pressure",  unit: "bar", isActive: false},
   ]
 
 export const mock_measurements: Measurement[] = [
