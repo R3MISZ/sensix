@@ -18,7 +18,9 @@ export const DevicePanel = ({ device, onAddClick, onModifyClick, onDeleteClick }
                 <div className="hSub">
                     <span className="muted">Id:</span> <b>{device?.id || empty}</b>
                     <span className="dotSep">|</span>
-                    <span className="muted">Status:</span> <b>{device?.status || empty}</b>
+                    <span className="muted">Created at:</span> <b>{device?.createdAtUtc}</b>
+                    <span className="dotSep">|</span>
+                    <span className="muted">IsActive:</span> <b>{device?.isActive ? "true" : "false"}</b>
                     <span className="dotSep">|</span>
                     <span className="muted">Location:</span> <b>{device?.location || empty}</b>
                 </div>

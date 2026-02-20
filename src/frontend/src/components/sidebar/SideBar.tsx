@@ -21,7 +21,7 @@ export const SideBar = ({ onAddClick, children }: SideBarProps) => {
         <button className="btn small" onClick={onAddClick}>+ Add Device</button>
       </div>
       <div className="searchBox">
-        <input className="input" placeholder="Search devices / sensors..." />
+        <input className="input" placeholder="Search devices / sensors..." readOnly />
       </div>
       <div className="tree">
         {children || <div className="emptyHint">No items added yet</div>}

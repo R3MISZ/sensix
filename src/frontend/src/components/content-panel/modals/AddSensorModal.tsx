@@ -22,11 +22,11 @@ export const AddSensorModal = (props: Props) => {
                 e.preventDefault();
                 const target = e.target as any;
                 const newSensor: Sensor = {
-                    device_id: target.deviceId.value,
+                    deviceId: target.deviceId.value,
                     id: target.sensorId.value,
                     name: target.sensorName.value,
                     unit: target.sensorUnit.value,
-                    status: target.sensorStatus.value
+                    isActive: target.sensorStatus.value
                 };
                 props.onSave(newSensor);
                 props.onClose();

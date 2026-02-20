@@ -542,6 +542,17 @@ html, body, #root {
   background: rgba(255,90,122,0.18);
 }
 
+.btn.retry {
+  border-color: rgba(255,90,122,0.32);
+  background: rgba(255,90,122,0.12);
+  width: 100px;
+  height: auto;
+  text-align: center;
+  font-weight: 200;
+  padding: 4px 10px;
+  margin-top: 10px;
+}
+
 .iconBtn {
   height: 30px;
   width: 30px;

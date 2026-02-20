@@ -24,7 +24,7 @@ export const AddDeviceModal = (PARAM: Props) => {
                     id: target.deviceId.value,
                     name: target.deviceName.value,
                     location: target.location.value,
-                    status: "active"
+                    isActive: "active"
                 };
                 PARAM.onSave(newDevice);
                 PARAM.onClose();

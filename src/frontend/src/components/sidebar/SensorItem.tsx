@@ -16,7 +16,7 @@ export const SensorItem = ({ sensor, isActive, onSelect }: SideBarSensorProps) =
     >
       <span className={`miniBadge ${false ? "bad" : "good"}`}>{false ? "!" : "•"}</span>
       <span className="treeSensorName">{sensor.name}</span>
-      <span className="miniUnit">{sensor.unit || "—"}</span>
+      {/*<span className="miniUnit">{sensor.unit || "—"}</span>*/}
     </button>
   );
 }

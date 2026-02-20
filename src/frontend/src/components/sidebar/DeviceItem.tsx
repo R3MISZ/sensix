@@ -19,7 +19,7 @@ export const DeviceItem = ({ device, isActive, onSelect, children }: SideBarItem
         </button>
         <button className="treeDeviceMain" onClick={onSelect}>
           <span className="treeDeviceName">{device.name}</span>
-          <span className={`badge ${device.status === "online" ? "ok" : ""}`}>{device.status}</span>
+          <span className={`badge ${device.isActive === true ? "ok" : ""}`}>{device.isActive ? "online" : "offline"}</span>
         </button>
       </div>
       {isExpanded && 

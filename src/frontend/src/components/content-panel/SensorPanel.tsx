@@ -19,7 +19,11 @@ export const SensorPanel = ({sensor, onAddClick, onModifyClick, onDeleteClick }:
                     <div className="hSub">
                         <span className="muted">Id:</span> <b>{sensor?.id || empty}</b>
                         <span className="dotSep">|</span>
-                        <span className="muted">Status:</span> <b>{sensor?.status || empty}</b>
+                        <span className="muted">Created at:</span> <b>{sensor?.createdAtUtc || empty}</b>
+                        <span className="dotSep">|</span>
+                        <span className="muted">IsActive:</span> <b>{sensor?.isActive ? "true" : "false"}</b>
+                        <span className="dotSep">|</span>
+                        <span className="muted">Type:</span> <b>{sensor?.type || empty}</b>
                         <span className="dotSep">|</span>
                         <span className="muted">Unit:</span> <b>{sensor?.unit || empty}</b>
                     </div>

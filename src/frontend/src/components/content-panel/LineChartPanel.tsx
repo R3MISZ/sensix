@@ -19,9 +19,13 @@ export const LineChartPanel: React.FC<Props> = ({ data, unit }) => {
   const chartData = useMemo(() => {
     return data.map((m) => ({
       // X-Axis
-      time: new Date(m.timeStamp).toLocaleTimeString("de-DE", {
+      time: new Date(m.timestampUtc).toLocaleTimeString("de-DE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
       }),
       value: m.value,
     }));
@@ -62,8 +66,8 @@ export const LineChartPanel: React.FC<Props> = ({ data, unit }) => {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#1a1a1a",
-                  border: "1px solid #333",
+                  backgroundColor: "#1a1a1ace",
+                  border: "1px solid #333333d2",
                   borderRadius: "8px",
                   fontSize: "12px"
                 }}

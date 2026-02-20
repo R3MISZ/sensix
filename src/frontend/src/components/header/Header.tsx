@@ -4,6 +4,8 @@ import type { Device, Sensor } from "../../types";
 interface Props {
   devices_len: number;
   sensors_len: number;
+  isDemoActive: boolean;
+  setIsDemoActive: () => void;
 }
 
 export const Header = (props: Props) => {
@@ -33,7 +35,7 @@ export const Header = (props: Props) => {
       </div>
 
       <div className="topbarControls">
-        <button className="btn ghost" title="Regenerate data (demo)">Enable Demo</button>
+        <button className="btn ghost" onClick={props.setIsDemoActive}>{props.isDemoActive ? "Disable" : "Enable"} Demo</button>
       </div>
     </header>
   );
