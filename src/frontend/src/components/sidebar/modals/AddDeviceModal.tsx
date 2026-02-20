@@ -21,10 +21,11 @@ export const AddDeviceModal = (PARAM: Props) => {
                 e.preventDefault();
                 const target = e.target as any;
                 const newDevice: Device = {
+                    createdAtUtc: Date.now(),
                     id: target.deviceId.value,
                     name: target.deviceName.value,
                     location: target.location.value,
-                    isActive: "active"
+                    isActive: true,
                 };
                 PARAM.onSave(newDevice);
                 PARAM.onClose();

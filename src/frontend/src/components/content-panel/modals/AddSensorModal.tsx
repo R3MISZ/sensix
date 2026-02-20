@@ -22,9 +22,11 @@ export const AddSensorModal = (props: Props) => {
                 e.preventDefault();
                 const target = e.target as any;
                 const newSensor: Sensor = {
+                    createdAtUtc: Date.now(),
                     deviceId: target.deviceId.value,
                     id: target.sensorId.value,
                     name: target.sensorName.value,
+                    type: target.sensorType.value,
                     unit: target.sensorUnit.value,
                     isActive: target.sensorStatus.value
                 };
@@ -43,6 +45,10 @@ export const AddSensorModal = (props: Props) => {
                     <div className="formRow">
                         <label className="formLabel">Name</label>
                         <input className="input" name="sensorName" placeholder="e.g. Temperature Sensor" required />
+                    </div>
+                     <div className="formRow">
+                        <label className="formLabel">Type</label>
+                        <input className="input" name="sensorType" placeholder="e.g. Temperature" required />
                     </div>
                     <div className="formRow">
                         <label className="formLabel">Unit</label>

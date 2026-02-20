@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Device, Sensor } from "../../types";
+//import type { Device, Sensor } from "../../types";
 
 interface Props {
   devices_len: number;

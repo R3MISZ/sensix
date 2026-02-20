@@ -12,11 +12,11 @@ import {
   DevicePanel,
   SensorPanel,
   ValuesPanel,
-  ControlPanel,
+  //ControlPanel,
   LineChartPanel,
   AddSensorModal,
   AddMeasurementModal,
-  ModifyDeviceModal
+  //ModifyDeviceModal
 } from "./components/content-panel";
 
 export const FootPanel: React.FC = () => {
@@ -33,7 +33,7 @@ export default function App() {
   const [isAddSensorOpen, setIsAddSensorOpen] = useState(false);
   const [isAddMeasurementOpen, setIsAddMeasurementOpen] = useState(false);
 
-  const [isModifyDeviceOpen, setIsModifyDeviceOpen] = useState(false);
+  //const [isModifyDeviceOpen, setIsModifyDeviceOpen] = useState(false);
 
   const [devices, setDevices] = useState<Device[]>([]);
   const [sensors, setSensors] = useState<Sensor[]>([]);
