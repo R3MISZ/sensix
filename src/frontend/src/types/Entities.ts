@@ -1,5 +1,5 @@
 export interface Device {
-  createdAtUtc:number;
+  createdAtUtc:string;
   id:string;
   name:string;
   isActive:boolean;
@@ -8,7 +8,7 @@ export interface Device {
 }
 
 export interface Sensor {
-  createdAtUtc:number;
+  createdAtUtc:string;
   id:string;
   deviceId:string;
   name:string;
@@ -18,8 +18,42 @@ export interface Sensor {
 }
 
 export interface Measurement {
-  timestampUtc:number;
+  timestampUtc:string;
   id:string;
   sensorId:string;
   value:number;
 }
+
+export interface CreateDeviceRequest {
+  name: string;
+  location: string;
+  isActive: boolean;
+}
+
+export interface CreateSensorRequest {
+  deviceId: string;
+  name: string;
+  type: string;
+  unit: string;
+  isActive: boolean;
+}
+
+export interface CreateMeasurementRequest {
+  sensorid:string;
+  value: number;
+  timestampUtc:number;
+}
+
+export type MeasurementDto = {
+  id: string;
+  sensorId: string;
+  timestampUtc: string;
+  value: number;
+};
+
+export type SensorDto = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  deviceId?: string | null;
+};
