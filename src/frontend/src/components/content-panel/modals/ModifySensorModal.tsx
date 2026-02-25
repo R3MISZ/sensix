@@ -1,68 +1,57 @@
-import type { Device } from "../../../types/Entities"
+import type { Sensor } from "../../../types/Entities"
 
 interface Props {
-  selectedDevice: Device | undefined;
+  selectedSensor: Sensor | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedDevice: Device) => void;
+  onSave: (updatedSensor: Sensor) => void;
 }
 
-export const ModifyDeviceModal = ({ selectedDevice, isOpen, onClose, onSave }: Props) => {
-  if (!isOpen || !selectedDevice) return null;
+export const ModifySensorModal = ({ selectedSensor, isOpen, onClose, onSave }: Props) => {
+  if (!isOpen || !selectedSensor) return null;
 
   return (
     <div className="modalOverlay">
       <div className="modalCard">
         <div className="modalHeader">
-          <div className="modalTitle">Modify Device: {selectedDevice.name}</div>
+          <div className="modalTitle">Modify Device: {selectedSensor.name}</div>
         </div>
         
         <form onSubmit={(e) => {
           e.preventDefault();
           const target = e.currentTarget.elements as any;
           
-          const updatedDevice: Device = {
-              ...selectedDevice,
-              name: target.deviceName.value,
-              location: target.location.value,
+          const updatedSensor: Sensor = {
+              ...selectedSensor,
+              name: target.sensorName.value,
+              type: target.location.value,
+              unit: target.unit.value,
               isActive: target.isActive.value === "true" // Convert to bool
           };
           
-          onSave(updatedDevice);
+          onSave(updatedSensor);
           onClose();
         }}>
             <div className="modalBody">
                 <div className="formRow">
                     <label className="formLabel">Id</label>
-                    <input 
-                        className="input" 
-                        value={selectedDevice.id} 
-                        readOnly 
-                    />
+                    <input className="input" value={selectedSensor.id} readOnly />
                 </div>
-                
                 <div className="formRow">
                     <label className="formLabel">Name</label>
-                    <input 
-                        className="input" 
-                        name="deviceName" 
-                        defaultValue={selectedDevice.name} 
-                        required 
-                    />
+                    <input className="input" name="sensorName" defaultValue={selectedSensor.name} required />
                 </div>
-                
                 <div className="formRow">
-                    <label className="formLabel">Location</label>
-                    <input 
-                        className="input" 
-                        name="location" 
-                        defaultValue={selectedDevice.location} 
-                        required 
-                    />
+                    <label className="formLabel">Type</label>
+                    <input className="input" name="location" defaultValue={selectedSensor.type} required />
+                </div>
+                <div className="formRow">
+                    <label className="formLabel">Unit</label>
+                    <input className="input" name="unit" defaultValue={selectedSensor.unit} required />
                 </div>
                 <div className="formRow">
                     <label className="formLabel">Status</label>
-                    <select name="isActive" defaultValue={selectedDevice.isActive.toString()}>
+                    <select name="isActive" defaultValue={selectedSensor.isActive.toString()}>
                         <option value="true">true</option>
                         <option value="false">false</option>
                     </select>

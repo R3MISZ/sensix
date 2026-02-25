@@ -14,6 +14,7 @@ interface SideBarProps {
 }
 
 export const SideBar = ({ onAddClick, children }: SideBarProps) => {
+
   return (
     <aside className="sidebar">
       <div className="sidebarHeader">
@@ -29,4 +30,3 @@ export const SideBar = ({ onAddClick, children }: SideBarProps) => {
     </aside>
   );
 };
-

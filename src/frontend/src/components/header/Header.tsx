@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-//import type { Device, Sensor } from "../../types";
 
 interface Props {
-  devices_len: number;
-  sensors_len: number;
+  devicesCount: number;
+  sensorsCount: number;
   isDemoActive: boolean;
-  setIsDemoActive: () => void;
+  onDemoClick: () => void;
 }
 
-export const Header = (props: Props) => {
+export const Header = ({ devicesCount, sensorsCount, isDemoActive, onDemoClick }: Props) => {
   const [now, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -29,13 +28,13 @@ export const Header = (props: Props) => {
         <div className="dotSep">|</div>
         <div className="topbarTime">{timeString}</div>
         <div className="dotSep">|</div>
-        <div className="topbarTime">Devices: {props.devices_len}</div>
+        <div className="topbarTime">Devices: {devicesCount}</div>
         <div className="dotSep">|</div>
-        <div className="topbarTime">Sensors: {props.sensors_len}</div>
+        <div className="topbarTime">Sensors: {sensorsCount}</div>
       </div>
 
       <div className="topbarControls">
-        <button className="btn ghost" onClick={props.setIsDemoActive}>{props.isDemoActive ? "Disable" : "Enable"} Demo</button>
+        <button className="btn ghost" onClick={onDemoClick}>{isDemoActive ? "Disable" : "Enable"} Demo</button>
       </div>
     </header>
   );

@@ -1,9 +1,9 @@
-import type { Device, Sensor } from "../../../types"
+import type { CreateSensorRequest} from "../../../types"
 
 interface Props {
-    selectedDevice?: Device;
+    selectedDeviceId?: string;
     isOpen: boolean;
-    onSave: (newDevice: Sensor) => void;
+    onSave: (newDevice: CreateSensorRequest) => void;
     onClose: () => void;
 }
 
@@ -21,14 +21,12 @@ export const AddSensorModal = (props: Props) => {
             <form onSubmit={(e) => {
                 e.preventDefault();
                 const target = e.target as any;
-                const newSensor: Sensor = {
-                    createdAtUtc: Date.now(),
+                const newSensor: CreateSensorRequest = {
                     deviceId: target.deviceId.value,
-                    id: target.sensorId.value,
                     name: target.sensorName.value,
                     type: target.sensorType.value,
                     unit: target.sensorUnit.value,
-                    isActive: target.sensorStatus.value
+                    isActive: target.isActive.value === "true" // convert to bool
                 };
                 props.onSave(newSensor);
                 props.onClose();
@@ -36,11 +34,7 @@ export const AddSensorModal = (props: Props) => {
                 <div className="modalBody">
                     <div className="formRow">
                         <label className="formLabel">Device Id</label>
-                        <input className="input" name="deviceId" value={props.selectedDevice?.id} readOnly />
-                    </div>
-                    <div className="formRow">
-                        <label className="formLabel">Sensor Id</label>
-                        <input className="input" name="sensorId" placeholder="e.g. 0123-4567-890" required />
+                        <input className="input" name="deviceId" value={props.selectedDeviceId} readOnly />
                     </div>
                     <div className="formRow">
                         <label className="formLabel">Name</label>
@@ -55,8 +49,11 @@ export const AddSensorModal = (props: Props) => {
                         <input className="input" name="sensorUnit" placeholder="e.g. °C" required />
                     </div>
                     <div className="formRow">
-                        <label className="formLabel">Status</label>
-                        <input className="input" name="sensorStatus" value={"active"} readOnly />
+                        <label className="formLabel" htmlFor="isActive">Is Active</label>
+                        <select name="isActive" id="isActive" defaultValue="true">
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                        </select>
                     </div>
                 </div>
                 <div className="modalFooter">

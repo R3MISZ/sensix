@@ -14,11 +14,11 @@ export const AddMeasurementModal = ({isOpen, onClose}: Props) => {
         <div className="modalHeader">
           <div className="modalTitle">New Measurement</div>
           <div className="mainHeaderRight">
-            <button className="btn ghost" onClick={onClose}></button>
+            <button className="btn ghost" onClick={onClose}>✕</button>
           </div>
         </div>
         <div className="modalBody">
-          <label className="formLabel">To add new measurement use the API</label>
+          <label className="formLabel">Use API to add measurements</label>
         </div>
       </div>
     </div>
