@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo} from "react";
 import "./App.css";
 
-import type { Measurement, Device, Sensor, CreateDeviceRequest, CreateSensorRequest } from "./types"
-import { mock_devices, mock_measurements, mock_sensors } from "./assets/data_mock";
+import { useState } from "react";
+
+import type { Device, Sensor, CreateDeviceRequest, CreateSensorRequest } from "./types"
 
 import { Header } from "./components/header";
 import { SideBar, DeviceItem, SensorItem, AddDeviceModal } from "./components/sidebar";
@@ -17,9 +17,8 @@ import {
   ModifyDeviceModal
 } from "./components/content-panel";
 
-import { ModifySensorModal } from "./components/content-panel/modals/ModifySensorModal";
-import { deviceService, sensorService, measurementService } from "./api/services";
-import { useAppLogic } from "./AppContext";
+import { EditSensorModal } from "./components/content-panel/modals/ModifySensorModal";
+import { appState } from "./AppState";
 
 export const FootPanel: React.FC = () => {
   return (
@@ -30,301 +29,137 @@ export const FootPanel: React.FC = () => {
 
 export default function App() {
 
-  const [isDemoActive, setIsDemoActive] = useState(false);
+const ModalEnum = {
+  NONE: 0,
+  ADD_DEVICE: 1,
+  MODIFY_DEVICE: 2,
+  ADD_SENSOR: 3,
+  MODIFY_SENSOR: 4,
+  ADD_MEASUREMENT: 5,
+}
 
-  const [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
-  const [isAddSensorOpen, setIsAddSensorOpen] = useState(false);
-  const [isAddMeasurementOpen, setIsAddMeasurementOpen] = useState(false);
+const closeModal = () => {
+  setModal(ModalEnum.NONE)
+}
 
-  const [isModifyDeviceOpen, setIsModifyDeviceOpen] = useState(false);
-  const [isModifySensorOpen, setIsModifySensorOpen] = useState(false);
+const [modal, setModal] = useState<number>(ModalEnum.NONE);
 
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [sensors, setSensors] = useState<Sensor[]>([]);
-  const [measurements, setMeasurements] = useState<Measurement[]>([]);
+const { lists, demo, actions, modals, selected,state } = appState();
 
-  const [selectedDevice, setSelectedDevice] = useState<Device | undefined>(undefined);
-  const [selectedSensor, setSelectedSensor] = useState<Sensor | undefined>(undefined); 
+const displayFailedToLoad = () => {
+  return (
+    <div>
+      <div className="topbarDate">Failed to Load</div>
+      <button className="btn retry" onClick={actions.setApiData}>Retry</button>
+    </div>
+  );
+}
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [loadingError, setLoadingError] = useState<boolean>(false);
+const displayListDevices = () => {
+  return (
+    lists.devices.map(device => {
+      
+      const deviceSensors = lists.sensors.filter(s => s.deviceId === device.id);
 
-  const selectedMeasurements = useMemo(() => {
-    if (!selectedSensor) {
-      return [];
-    }
-    else {
-      return measurements
-        .filter(m => m.sensorId === selectedSensor.id)
-        .sort((a, b) => new Date(a.timestampUtc).getTime() - new Date(b.timestampUtc).getTime());
-    }
-  }, [measurements, selectedSensor]);
-
-  // Load backend data
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-      try {
-        setDevices([])
-        setSensors([])
-        setMeasurements([])
-
-        setLoading(true);
-        setLoadingError(false);
-
-        const [api_devices, api_sensors, api_measurements] = await Promise.all([deviceService.getAll(), sensorService.getAll(), measurementService.getAll()]);
-
-        setDevices(api_devices)
-        setSensors(api_sensors);
-        setMeasurements(api_measurements);
-      }
-      catch (error) {
-        console.error("API Error:", error);
-        setLoadingError(true);
-      }
-      finally {
-        setLoading(false);
-      }
-    };
-
-  const useMockData = () => {
-    setDevices(mock_devices)
-    setSensors(mock_sensors)
-    setMeasurements(mock_measurements)
-  }
-
-  /*
-  useEffect(() => {
-    console.log("--- Devices State ---");
-    console.table(devices);
-    console.log("--- Sensors State ---");
-    console.table(sensors);
-  }, [devices, sensors]);
-  */
+      return (
+        <DeviceItem
+          key={device.id}
+          device={device}
+          isActive={selected.selectedDevice?.id === device.id}
+          onSelect={() => {
+            selected.setSelectedDevice(device);
+            selected.setSelectedSensor(undefined);
+          }}
+        > { deviceSensors.length > 0 ? deviceSensors.map(sensor => (
+            <SensorItem
+              key={sensor.id}
+              sensor={sensor}
+              isActive={selected.selectedSensor?.id === sensor.id}
+              onSelect={() => {
+                selected.setSelectedSensor(sensor);
+                selected.setSelectedDevice(device);
+              } }
+            />
+            )) : <div className="emptyHint">No items added yet</div>}
+        </DeviceItem>
+      );
+    })
+  );
+}
 
   return (
     <div className="appShell">
       <Header 
-        devicesCount={devices.length}
-        sensorsCount={sensors.length}
-        isDemoActive={isDemoActive}
-        onDemoClick={async () => {
-          setSelectedDevice(undefined)
-          setSelectedSensor(undefined)
-
-          if (isDemoActive) {
-            setIsDemoActive(false);
-            await loadData();
-          } 
-          else {
-            setIsDemoActive(true);
-            useMockData();
-          }
-        }}/>
+        devicesCount={lists.devices.length}
+        sensorsCount={lists.sensors.length}
+        isDemoActive={demo.isDemoActive}
+        onDemoClick={demo.activateDemo}/>
 
       <div className="contentGrid">
         {/*<SideBar onAddClick={() => setIsAddDeviceOpen(true)}> */}
-        <SideBar onAddClick={() => setIsAddDeviceOpen(true)}>
-          {/* Demo NOT active and using api*/}
-          {!isDemoActive && loading && <div className="statusHint">Loading data...</div>}
-          {!isDemoActive && loadingError && 
-          <div>
-            <div className="topbarDate">Failed to Load</div>
-            <button className="btn retry" onClick={loadData}>Retry</button>
-          </div>}
-
-          {/* Demo ACTIVE */}
-          {(isDemoActive || (!loading && !loadingError)) &&
-            devices.map(device => {
-
-            const deviceSensors = sensors.filter(s => s.deviceId === device.id);
-
-            return (
-              <DeviceItem
-                key={device.id}
-                device={device}
-                isActive={selectedDevice?.id === device.id}
-                onSelect={() => {
-                  setSelectedDevice(device);
-                  setSelectedSensor(undefined);
-                }}
-              > { deviceSensors.length > 0 ? deviceSensors.map(sensor => (
-                  <SensorItem
-                    key={sensor.id}
-                    sensor={sensor}
-                    isActive={selectedSensor?.id === sensor.id}
-                    onSelect={() => {
-                      setSelectedSensor(sensor);
-                      setSelectedDevice(device);
-                    } }
-                  />
-                  )) : <div className="emptyHint">No items added yet</div>}
-              </DeviceItem>
-            );
-        })}
+        <SideBar onAddClick={() => setModal(ModalEnum.ADD_DEVICE)}>
+          {!demo.isDemoActive && state.loading && <div className="statusHint">Loading data...</div>}
+          {!demo.isDemoActive && state.loadingError && displayFailedToLoad()}
+          {(demo.isDemoActive || (!state.loading && !state.loadingError)) && displayListDevices()}
         </SideBar> 
 
         <main className="main">
           <DevicePanel
-              device={selectedDevice}
-              onAddClick={() => setIsAddSensorOpen(true)}
-              onModifyClick={() => setIsModifyDeviceOpen(true)}
-              onDeleteClick={async () => {
-                if (!selectedDevice) return;
-
-                const confirmMessage = `Remove Device "${selectedDevice.name}" and all related Sensors?`;
-                if (!window.confirm(confirmMessage)) return;
-
-                const idToDelete = selectedDevice.id;
-
-                try {
-                  if (!isDemoActive) await deviceService.delete(idToDelete);
-
-                  setSensors(prev => prev.filter(s => s.deviceId !== idToDelete));
-                  setDevices(prev => prev.filter(d => d.id !== idToDelete));
-
-                  setSelectedDevice(undefined);
-                  setSelectedSensor(undefined);
-                }
-                catch (error) {
-                  alert(`Error: ${error}`);
-                }
-              }}
+              device={selected.selectedDevice}
+              onAddClick={() => setModal(ModalEnum.ADD_SENSOR)}
+              onModifyClick={() => setModal(ModalEnum.MODIFY_DEVICE)}
+              onDeleteClick={async () => {if (selected.selectedDevice?.id) actions.deleteDevice(selected.selectedDevice.id)}}
             />
 
           <SensorPanel 
-            sensor={selectedSensor}
-            onAddClick={() => setIsAddMeasurementOpen(true)}
-            onModifyClick={() => setIsModifySensorOpen(true)}
-            onDeleteClick={async () => {
-              if (!selectedSensor) return;
-
-              const confirmMessage = `Remove Sensor "${selectedSensor.name}" ?`
-              if (!window.confirm(confirmMessage)) return;
-
-              const idToDelete = selectedSensor.id;
-
-              try {
-                if (!isDemoActive) {
-                  await sensorService.delete(idToDelete);
-                }
-
-                setSensors(prev => prev.filter(s => s.id !== idToDelete));
-                setSelectedSensor(undefined);
-              }
-              catch (error) {
-                alert(`Error: ${error}`);
-              }
-            }}
+            sensor={selected.selectedSensor}
+            onAddClick={() => setModal(ModalEnum.ADD_MEASUREMENT)}
+            onModifyClick={() => setModal(ModalEnum.MODIFY_SENSOR)}
+            onDeleteClick={async () => {if (selected.selectedSensor?.id) actions.deleteSensor(selected.selectedSensor.id)}}
           />
 
           <ValuesPanel
-            data={selectedMeasurements}
-            unit={selectedSensor?.unit}
+            data={selected.selectedSensor ? selected.selectedMeasurements : []}
+            unit={selected.selectedSensor?.unit}
           />
 
           {/*<ControlPanel />*/}
 
           <LineChartPanel
-            data={selectedMeasurements}
-            unit={selectedSensor?.unit}
+            data={selected.selectedMeasurements}
+            unit={selected.selectedSensor?.unit}
           />
 
           {/*<FootPanel />*/}
         </main>
       </div>
       <AddDeviceModal
-        isOpen={isAddDeviceOpen}
-        onClose={() => setIsAddDeviceOpen(false)}
-        onSave={async (newDevice: CreateDeviceRequest) => {
-          try {
-            let savedDevice: Device;
-
-            if (!isDemoActive) {
-              savedDevice = await deviceService.create(newDevice);
-            }
-            else {
-              savedDevice = {
-                ...newDevice,
-                id: crypto.randomUUID(),
-                createdAtUtc: new Date().toISOString(),
-              };
-            }
-
-            setDevices((prev) => [...prev, savedDevice]);
-            setSelectedDevice(savedDevice)
-          }
-          catch (error) {
-            window.alert(`Error: ${error}`);
-          }
-        }}
+        isOpen={modal === ModalEnum.ADD_DEVICE}
+        onSave={(request: CreateDeviceRequest) => actions.createDevice(request)}
+        onClose={closeModal}
       />
       <AddSensorModal
-        selectedDeviceId={selectedDevice?.id}
-        isOpen={isAddSensorOpen}
-        onSave={async (newSensor:CreateSensorRequest) => {
-          try {
-            let savedSensor: Sensor;
-
-            if (!isDemoActive) {
-              savedSensor = await sensorService.create(newSensor);
-            }
-            else {
-              savedSensor = {
-                ...newSensor,
-                id: crypto.randomUUID(),
-                createdAtUtc: new Date().toISOString(),
-              };
-            }
-
-            setSensors((prev) => [...prev, savedSensor]);
-            setSelectedSensor(savedSensor)
-          }
-          catch (error) {
-            window.alert(`Error: ${error}`);
-          }
-        }}
-        onClose={() => setIsAddSensorOpen(false)}
+        isOpen={modal === ModalEnum.ADD_SENSOR}
+        selectedDeviceId={selected.selectedDevice?.id}
+        onSave={async (request: CreateSensorRequest) => actions.createSensor(request)}
+        onClose={closeModal}
       />
       <AddMeasurementModal
-        isOpen={isAddMeasurementOpen}
-        onClose={() => setIsAddMeasurementOpen(false)}
+        isOpen={modal === ModalEnum.ADD_MEASUREMENT}
+        onClose={closeModal}
       />
       <ModifyDeviceModal
-        selectedDevice={selectedDevice}
-        isOpen={isModifyDeviceOpen}
-        onSave={(updatedDevice: Device) => {
-
-          setDevices(prev => prev.map(d => d.id === updatedDevice.id ? updatedDevice : d));
-          setSelectedDevice(updatedDevice);
-        }}
-        onClose={() => setIsModifyDeviceOpen(false)}
+        isOpen={modal === ModalEnum.MODIFY_DEVICE}
+        selectedDevice={selected.selectedDevice}
+        onSave={(request: Device) => actions.modifyDevice(request)}
+        onClose={closeModal}
       />
 
-      <ModifySensorModal
-        selectedSensor={selectedSensor}
-        isOpen={isModifySensorOpen}
-        onSave={async (updatedSensor: Sensor) => {
-          try {
-            let savedSensor: Sensor;
-
-            if (!isDemoActive) {
-              savedSensor = await sensorService.put(updatedSensor);
-            }
-            else {
-              savedSensor = updatedSensor;
-            }
-
-            setSensors(prev => prev.map(s => s.id === updatedSensor.id ? updatedSensor : s));
-            setSelectedSensor(savedSensor);
-          }
-          catch (error) {
-            window.alert(`Error: ${error}`);
-          }
-        }}
-        onClose={() => setIsModifySensorOpen(false)}
+      <EditSensorModal
+        isOpen={modal === ModalEnum.MODIFY_SENSOR}
+        selectedSensor={selected.selectedSensor}
+        onSave={(request: Sensor) => actions.modifySensor(request)}
+        onClose={closeModal}
       />
     </div>
   );

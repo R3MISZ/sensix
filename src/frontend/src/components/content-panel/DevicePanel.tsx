@@ -31,7 +31,7 @@ export const DevicePanel = ({ device, onAddClick, onModifyClick, onDeleteClick }
       {device && (
         <div className="mainHeaderRight">
           <button className="btn" onClick={onAddClick}>Add</button>
-          <button className="btn ghost" onClick={onModifyClick}>Modify</button>
+          <button className="btn ghost" onClick={onModifyClick}>Edit</button>
           <button className="btn danger ghost" onClick={onDeleteClick}>Delete</button>
         </div>
       )}

@@ -3,12 +3,12 @@ import type { CreateSensorRequest} from "../../../types"
 interface Props {
     selectedDeviceId?: string;
     isOpen: boolean;
-    onSave: (newDevice: CreateSensorRequest) => void;
+    onSave: (request: CreateSensorRequest) => void;
     onClose: () => void;
 }
 
-export const AddSensorModal = (props: Props) => {
-    if (!props.isOpen) {
+export const AddSensorModal = ({isOpen, selectedDeviceId, onSave, onClose}: Props) => {
+    if (!isOpen) {
         return null;
     }
     else {
@@ -21,20 +21,20 @@ export const AddSensorModal = (props: Props) => {
             <form onSubmit={(e) => {
                 e.preventDefault();
                 const target = e.target as any;
-                const newSensor: CreateSensorRequest = {
+                const request: CreateSensorRequest = {
                     deviceId: target.deviceId.value,
                     name: target.sensorName.value,
                     type: target.sensorType.value,
                     unit: target.sensorUnit.value,
                     isActive: target.isActive.value === "true" // convert to bool
                 };
-                props.onSave(newSensor);
-                props.onClose();
+                onSave(request);
+                onClose();
             }}>
                 <div className="modalBody">
                     <div className="formRow">
                         <label className="formLabel">Device Id</label>
-                        <input className="input" name="deviceId" value={props.selectedDeviceId} readOnly />
+                        <input className="input" name="deviceId" value={selectedDeviceId} readOnly />
                     </div>
                     <div className="formRow">
                         <label className="formLabel">Name</label>
@@ -57,7 +57,7 @@ export const AddSensorModal = (props: Props) => {
                     </div>
                 </div>
                 <div className="modalFooter">
-                    <button type="button" className="btn ghost" onClick={props.onClose}>Cancel</button>
+                    <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>
                     <button type="submit" className="btn">Save Device</button>
                 </div>
             </form>

@@ -3,7 +3,7 @@ import type { CreateDeviceRequest } from "../../../types/Entities"
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newDevice: CreateDeviceRequest) => void;
+  onSave: (request: CreateDeviceRequest) => void;
 }
 
 export const AddDeviceModal = ({isOpen, onSave, onClose}: Props) => {
@@ -20,12 +20,12 @@ export const AddDeviceModal = ({isOpen, onSave, onClose}: Props) => {
             <form onSubmit={(e) => {
                 e.preventDefault();
                 const target = e.target as any;
-                const newDevice: CreateDeviceRequest = {
+                const request: CreateDeviceRequest = {
                 name: target.name.value,
                 location: target.location.value,
                 isActive: target.isActive.value === "true" // convert to bool
                 };
-                onSave(newDevice);
+                onSave(request);
                 onClose();
             }}>
                 <div className="modalBody">

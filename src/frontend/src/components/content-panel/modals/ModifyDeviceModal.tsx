@@ -4,7 +4,7 @@ interface Props {
   selectedDevice: Device | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedDevice: Device) => void;
+  onSave: (request: Device) => void;
 }
 
 export const ModifyDeviceModal = ({ selectedDevice, isOpen, onClose, onSave }: Props) => {
@@ -21,14 +21,14 @@ export const ModifyDeviceModal = ({ selectedDevice, isOpen, onClose, onSave }: P
           e.preventDefault();
           const target = e.currentTarget.elements as any;
           
-          const updatedDevice: Device = {
+          const request: Device = {
               ...selectedDevice,
               name: target.deviceName.value,
               location: target.location.value,
               isActive: target.isActive.value === "true" // Convert to bool
           };
           
-          onSave(updatedDevice);
+          onSave(request);
           onClose();
         }}>
             <div className="modalBody">
