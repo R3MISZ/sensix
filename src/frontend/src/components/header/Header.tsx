@@ -34,7 +34,7 @@ export const Header = ({ devicesCount, sensorsCount, isDemoActive, onDemoClick }
       </div>
 
       <div className="topbarControls">
-        <button className="btn ghost" onClick={onDemoClick}>{isDemoActive ? "Disable" : "Enable"} Demo</button>
+        <button className="btn ghost" onClick={onDemoClick}>{isDemoActive ? "Connect Server" : "Connect Demo"}</button>
       </div>
     </header>
   );

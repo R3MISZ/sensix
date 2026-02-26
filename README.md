@@ -5,7 +5,7 @@
 
 ---
 
-![Dashboard](docs/assets/sensix_frontend.png)
+![Dashboard](docs/assets/sensix_frontend.gif)
 
 ---
 
