@@ -44,7 +44,7 @@ const closeModal = () => {
 
 const [modal, setModal] = useState<number>(ModalEnum.NONE);
 
-const { lists, demo, actions, modals, selected,state } = appState();
+const { lists, demo, actions, selected,state } = appState();
 
 const displayFailedToLoad = () => {
   return (

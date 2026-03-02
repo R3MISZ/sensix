@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import  { useState, useEffect, useMemo } from "react";
 
 import type { Measurement, Device, Sensor, CreateDeviceRequest, CreateSensorRequest } from "./types"
 import { mock_devices, mock_measurements, mock_sensors } from "./assets/data_mock";
