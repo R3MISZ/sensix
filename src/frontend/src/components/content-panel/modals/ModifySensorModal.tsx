@@ -51,7 +51,7 @@ export const EditSensorModal = ({ selectedSensor, isOpen, onClose, onSave }: Pro
             </div>
             <div className="formRow">
               <label className="formLabel">Status</label>
-              <select name="isActive" defaultValue={selectedSensor.isActive.toString()}>
+              <select className="input" name="isActive" defaultValue={selectedSensor.isActive.toString()}>
                 <option value="true">true</option>
                 <option value="false">false</option>
               </select>

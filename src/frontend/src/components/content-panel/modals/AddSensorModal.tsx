@@ -50,7 +50,7 @@ export const AddSensorModal = ({isOpen, selectedDeviceId, onSave, onClose}: Prop
                     </div>
                     <div className="formRow">
                         <label className="formLabel" htmlFor="isActive">Is Active</label>
-                        <select name="isActive" id="isActive" defaultValue="true">
+                        <select className="input" name="isActive" id="isActive" defaultValue="true">
                             <option value="true">true</option>
                             <option value="false">false</option>
                         </select>

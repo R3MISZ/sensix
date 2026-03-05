@@ -10,10 +10,12 @@ export const EmptyHint = () => {
 
 interface SideBarProps {
   onAddClick: () => void;
+  onSearchChange: (value: string) => void;
+  searchValue: string;
   children: ReactNode;
 }
 
-export const SideBar = ({ onAddClick, children }: SideBarProps) => {
+export const SideBar = ({ onAddClick, onSearchChange, searchValue, children }: SideBarProps) => {
 
   return (
     <aside className="sidebar">
@@ -22,7 +24,10 @@ export const SideBar = ({ onAddClick, children }: SideBarProps) => {
         <button className="btn small" onClick={onAddClick}>+ Add Device</button>
       </div>
       <div className="searchBox">
-        <input className="input" placeholder="Search devices / sensors..." readOnly />
+        <div className="searchWrapper">
+          <input className="input" placeholder="Search devices / sensors..." value={searchValue} onChange={(e) => onSearchChange(e.target.value)}/>
+          {searchValue && (<button className="clearButton" onClick={() => onSearchChange("")} aria-label="Clear search">✕</button>)}
+        </div>
       </div>
       <div className="tree">
         {children || <div className="emptyHint">No items added yet</div>}

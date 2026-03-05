@@ -25,7 +25,24 @@ export function appState() {
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingError, setLoadingError] = useState<boolean>(false);
 
-   const selectedMeasurements = useMemo(() => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredDevices = useMemo(() => {
+    if (!searchTerm.trim()) return devices;
+    
+    const term = searchTerm.toLowerCase();
+    return devices.filter(device => {
+      // Device passt, wenn Name passt...
+      const deviceMatches = device.name.toLowerCase().includes(term);
+      // ...oder wenn mindestens einer seiner Sensoren passt
+      const hasMatchingSensor = sensors.some(s => 
+        s.deviceId === device.id && s.name.toLowerCase().includes(term)
+      );
+      return deviceMatches || hasMatchingSensor;
+    });
+  }, [devices, sensors, searchTerm]);
+
+  const selectedMeasurements = useMemo(() => {
     if (!selectedSensor) {
       return [];
     }
@@ -168,7 +185,7 @@ export function appState() {
   }
 
   return {
-    lists: { devices, sensors, measurements },
+    lists: { devices: filteredDevices, sensors, measurements },
     demo: { isDemoActive, activateDemo},
     selected: {
       selectedDevice,
@@ -212,5 +229,9 @@ export function appState() {
       loading,
       loadingError
     },
+    search: {
+      searchTerm,
+      setSearchTerm
+    }
   };
 }

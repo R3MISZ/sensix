@@ -44,7 +44,7 @@ const closeModal = () => {
 
 const [modal, setModal] = useState<number>(ModalEnum.NONE);
 
-const { lists, demo, actions, selected,state } = appState();
+const { lists, demo, actions, selected, state, search } = appState();
 
 const displayFailedToLoad = () => {
   return (
@@ -96,8 +96,7 @@ const displayListDevices = () => {
         onDemoClick={demo.activateDemo}/>
 
       <div className="contentGrid">
-        {/*<SideBar onAddClick={() => setIsAddDeviceOpen(true)}> */}
-        <SideBar onAddClick={() => setModal(ModalEnum.ADD_DEVICE)}>
+        <SideBar onAddClick={() => setModal(ModalEnum.ADD_DEVICE)} onSearchChange={search.setSearchTerm} searchValue={search.searchTerm}>
           {!demo.isDemoActive && state.loading && <div className="statusHint">Loading data...</div>}
           {!demo.isDemoActive && state.loadingError && displayFailedToLoad()}
           {(demo.isDemoActive || (!state.loading && !state.loadingError)) && displayListDevices()}

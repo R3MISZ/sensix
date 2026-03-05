@@ -115,6 +115,36 @@ html, body, #root {
   border-bottom: 1px solid var(--border);
 }
 
+.searchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.searchWrapper .input {
+  padding-right: 35px;
+}
+
+.clearButton {
+  position: absolute;
+  right: 10px;
+  top: 45%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text);
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.clearButton:hover {
+  opacity: 1;
+}
+
 .tree {
   padding: 10px 10px 14px 10px;
   overflow: auto;
@@ -486,9 +516,20 @@ html, body, #root {
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
+  background: #ffffff0a;
   color: var(--text);
   outline: none;
+}
+
+.input option {
+  background-color: #141720;
+  color: var(--text);
+  padding: 10px;
+}
+
+.input option:checked,
+.input option:hover {
+  box-shadow: 0 0 10px 100px #333 inset;
 }
 
 .input:focus, .select:focus {
